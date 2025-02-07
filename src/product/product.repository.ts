@@ -8,12 +8,15 @@ export class ProductRepository {
 
   async createProduct(product: Product) {
     const prisma: PrismaClient = this.prismaService.getPrismaClient();
+    const seller = await prisma.seller.findFirst({})
+
     const productCreateResult = await prisma.product.create({
       data: {
         name: product.name,
         description: product.description,
         price: product.price,
         stock: product.stock,
+        uploaderId: seller.id
       },
     });
 
