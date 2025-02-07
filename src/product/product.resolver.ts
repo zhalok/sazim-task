@@ -3,33 +3,68 @@ import { ProductService } from './product.service';
 import { Product } from './entities/product.entity';
 import { CreateProductInput } from './dto/create-product.input';
 import { UpdateProductInput } from './dto/update-product.input';
+import { ProductsOutput } from './dto/get-products.output';
+import { ProductOutput } from './dto/product.output';
+import { DeleteProductOutput } from './dto/delete-product.output';
 
 @Resolver(() => Product)
 export class ProductResolver {
   constructor(private readonly productService: ProductService) {}
 
-  @Mutation(() => Product)
-  createProduct(@Args('createProductInput') createProductInput: CreateProductInput) {
-    return this.productService.create(createProductInput);
+  @Mutation(() => ProductOutput)
+  async createProduct(
+    @Args('createProductInput') createProductInput: CreateProductInput,
+  ) {
+    const createdProduct = await this.productService.create(createProductInput);
+    return {
+      data: createdProduct,
+    };
   }
 
-  @Query(() => [Product], { name: 'product' })
-  findAll() {
-    return this.productService.findAll();
+  @Query(() => ProductsOutput, { name: 'products' })
+  async findAll(
+    @Args('limit', { type: () => Int }) limit: number,
+    @Args('page', { type: () => Int }) page: number,
+  ) {
+    const { products, totalProducts } = await this.productService.findAll({
+      page,
+      limit,
+    });
+    return {
+      pagination: {
+        limit,
+        page,
+        total: totalProducts,
+      },
+      data: products,
+    };
   }
 
-  @Query(() => Product, { name: 'product' })
-  findOne(@Args('id', { type: () => Int }) id: number) {
-    return this.productService.findOne(id);
+  @Query(() => ProductOutput, { name: 'product' })
+  async findOne(@Args('id', { type: () => String }) id: string) {
+    const product = await this.productService.findOne(id);
+    return { data: product };
   }
 
-  @Mutation(() => Product)
-  updateProduct(@Args('updateProductInput') updateProductInput: UpdateProductInput) {
-    return this.productService.update(updateProductInput.id, updateProductInput);
+  @Mutation(() => ProductOutput)
+  async updateProduct(
+    @Args('id', { type: () => String }) id: string,
+    @Args('updateProductInput') updateProductInput: UpdateProductInput,
+  ) {
+    const updatedProduct = await this.productService.update(
+      id,
+      updateProductInput,
+    );
+    return {
+      data: updatedProduct,
+    };
   }
 
-  @Mutation(() => Product)
-  removeProduct(@Args('id', { type: () => Int }) id: number) {
-    return this.productService.remove(id);
+  @Mutation(() => DeleteProductOutput)
+  async removeProduct(@Args('id', { type: () => String }) id: string) {
+    const deletedProduct = await this.productService.remove(id);
+    return {
+      message: `deleted product ${deletedProduct.id} successfully`,
+    };
   }
 }

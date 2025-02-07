@@ -1,0 +1,127 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id          String      @id @default(uuid())
+  name        String
+  description String?
+  price       Float
+  stock       Int         @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  RentItems   RentItems[]
+  Seller      Seller?     @relation(fields: [sellerId], references: [id])
+  sellerId    String?
+}
+
+model User {
+  id        String    @id @default(uuid()) // Unique ID
+  name      String
+  email     String    @unique // Unique email
+  password  String
+  role      Role      @default(USER) // Role-based access
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Seller    Seller?
+  Customer  Customer?
+}
+
+model Seller {
+  id        String        @id @default(uuid()) // Unique ID
+  userId    String        @unique
+  user      User          @relation(fields: [userId], references: [id])
+  companyId String
+  company   SellerCompany @relation(fields: [companyId], references: [id])
+  rating    Float         @default(0.0) // Seller rating
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  Product   Product[]
+}
+
+model Customer {
+  id        String      @id @default(uuid())
+  name      String
+  phone     String
+  email     String
+  address   String
+  userId    String?     @unique
+  user      User?       @relation(fields: [userId], references: [id])
+  // we are assuming that a customer can by anonymous and purchase without signing up
+  Order     Order[]
+  Rent      Rent[]
+  RentItems RentItems[]
+}
+
+model SellerCompany {
+  id     String   @id @default(uuid())
+  name   String   @unique
+  Seller Seller[]
+}
+
+model OrderItems {
+  id         String @id @default(uuid())
+  productId  String
+  orderId    String
+  customerId String
+  order      Order  @relation(fields: [orderId], references: [id])
+}
+
+model Order {
+  id         String       @id @default(uuid())
+  customerId String
+  customer   Customer     @relation(fields: [customerId], references: [id])
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  OrderItems OrderItems[]
+  status     OrderStatus
+}
+
+model Rent {
+  id         String      @id @default(uuid())
+  customerId String
+  customer   Customer    @relation(fields: [customerId], references: [id])
+  RentItems  RentItems[]
+  status     RentStatus
+}
+
+model RentItems {
+  id         String    @id @default(uuid())
+  rentId     String
+  rent       Rent      @relation(fields: [rentId], references: [id])
+  productId  String
+  product    Product   @relation(fields: [productId], references: [id])
+  Customer   Customer? @relation(fields: [customerId], references: [id])
+  customerId String?
+}
+
+enum Role {
+  USER
+  SELLER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  PLACED
+  COMPLETED
+  CANCELLED
+}
+
+enum RentStatus {
+  PENDING
+  ACTIVE
+  ENDED
+  CANCELLED
+}

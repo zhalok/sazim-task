@@ -1,26 +1,50 @@
 import { Injectable } from '@nestjs/common';
 import { CreateProductInput } from './dto/create-product.input';
 import { UpdateProductInput } from './dto/update-product.input';
+import { ProductRepository } from './product.repository';
+import { Product } from '@prisma/client';
 
 @Injectable()
 export class ProductService {
-  create(createProductInput: CreateProductInput) {
-    return 'This action adds a new product';
+  constructor(private readonly productRepository: ProductRepository) {}
+  async create(createProductInput: CreateProductInput) {
+    const product = await this.productRepository.createProduct({
+      name: createProductInput.name,
+      description: createProductInput.description,
+      price: createProductInput.price,
+      stock: createProductInput.stock,
+    });
+    return product;
   }
 
-  findAll() {
-    return `This action returns all product`;
+  async findAll({
+    limit,
+    page,
+  }: {
+    limit: number;
+    page: number;
+    filter?: Partial<Product & { id: string }>;
+  }) {
+    const totalProducts = await this.productRepository.countProducts({});
+    const products = await this.productRepository.getProducts({ limit, page });
+    return { products, totalProducts };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} product`;
+  async findOne(id: string) {
+    const product = await this.productRepository.getProductById(id);
+    return product;
   }
 
-  update(id: number, updateProductInput: UpdateProductInput) {
-    return `This action updates a #${id} product`;
+  async update(id: string, updateProductInput: UpdateProductInput) {
+    const updatedProduct = await this.productRepository.updateProduct(
+      id,
+      updateProductInput,
+    );
+    return updatedProduct;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} product`;
+  async remove(id: string) {
+    const deletedProduct = await this.productRepository.removeProduct(id);
+    return deletedProduct;
   }
 }
