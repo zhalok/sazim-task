@@ -31,29 +31,6 @@ async function main() {
 
   console.log('✅ Seller User created:', sellerUser);
 
-  // 🔹 Create Products for Seller
-  const product1 = await prisma.product.create({
-    data: {
-      name: 'Smartphone',
-      description: 'Latest 5G smartphone',
-      price: 799.99,
-      stock: 50,
-      sellerId: sellerUser.Seller.id, // Associate with seller
-    },
-  });
-
-  const product2 = await prisma.product.create({
-    data: {
-      name: 'Laptop',
-      description: 'High-performance laptop',
-      price: 1299.99,
-      stock: 20,
-      sellerId: sellerUser.Seller?.id,
-    },
-  });
-
-  console.log('✅ Products created:', product1, product2);
-
   // 🔹 Create a Customer (User with role USER)
   const customerUser = await prisma.user.create({
     data: {
@@ -72,6 +49,7 @@ async function main() {
     },
     include: { Customer: true },
   });
+  console.log('✅ Customer User created:', customerUser);
 
   console.log('🎉 Database seeding completed!');
 }
