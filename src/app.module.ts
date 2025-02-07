@@ -6,6 +6,7 @@ import { PrismaService } from './prisma/prisma.service';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { CommonModule } from './common/common.module';
+import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { CommonModule } from './common/common.module';
     }),
     ProductModule,
     CommonModule,
+    OrderModule,
   ],
   controllers: [AppController],
   providers: [AppService],

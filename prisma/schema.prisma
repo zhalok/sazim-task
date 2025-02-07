@@ -71,21 +71,31 @@ model SellerCompany {
 }
 
 model OrderItems {
-  id         String @id @default(uuid())
-  productId  String
-  orderId    String
-  customerId String
-  order      Order  @relation(fields: [orderId], references: [id])
+  id        String @id @default(uuid())
+  productId String
+  quantity  Int
+  orderId   String
+  order     Order  @relation(fields: [orderId], references: [id])
 }
 
 model Order {
-  id         String       @id @default(uuid())
-  customerId String
-  customer   Customer     @relation(fields: [customerId], references: [id])
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
-  OrderItems OrderItems[]
-  status     OrderStatus
+  id          String       @id @default(uuid())
+  customerId  String
+  customer    Customer     @relation(fields: [customerId], references: [id])
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  OrderItems  OrderItems[]
+  status      OrderStatus
+  totalAmount Int
+}
+
+model Payment {
+  id        String        @id @default(uuid())
+  amount    Float
+  status    PaymentStatus
+  orderId   String
+  expiredAt DateTime
+  createdAt DateTime      @default(now())
 }
 
 model Rent {
@@ -124,4 +134,10 @@ enum RentStatus {
   ACTIVE
   ENDED
   CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESSFULL
+  FAILED
 }
