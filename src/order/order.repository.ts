@@ -7,7 +7,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class OrderRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async createOrder(createOrderInput: CreateOrderInput,customerId:string) {
+  async createOrder(createOrderInput: CreateOrderInput, customerId: string) {
     const prisma = this.prismaService.getPrismaClient();
     const { orderItems } = createOrderInput;
     const dummyCustomer = await prisma.customer.findFirst();
@@ -47,7 +47,7 @@ export class OrderRepository {
 
       const order = await prismatx.order.create({
         data: {
-          customerId:dummyCustomer.id,
+          customerId: dummyCustomer.id,
           totalAmount: totalAmount,
           OrderItems: {
             createMany: {
@@ -69,6 +69,9 @@ export class OrderRepository {
           expiredAt: new Date(Date.now() + 1000 * 60 * 60),
         },
       });
+      setTimeout(() => {
+        this.deleteOrderIfPending(order.id);
+      }, 5000*60 );
 
       return {
         id: order.id,
@@ -78,5 +81,116 @@ export class OrderRepository {
       };
     });
     return order;
+  }
+
+  async deleteOrderIfPending(orderId: string) {
+    const prisma = this.prismaService.getPrismaClient();
+    const order = await prisma.order.findFirst({
+      where: {
+        id: orderId,
+      },
+    });
+    if (order.status === 'PENDING') {
+      await prisma.$transaction(async (prismatx) => {
+        const orderItems = await prismatx.orderItems.findMany({
+          where: {
+            orderId: orderId,
+          },
+        });
+        const productIds = orderItems.map((item) => item.productId);
+        await prismatx.product.updateMany({
+          where: {
+            id: {
+              in: productIds,
+            },
+          },
+          data: {
+            stock: { increment: 1 },
+          },
+        });
+        await prismatx.orderItems.deleteMany({
+          where:{
+            orderId:orderId
+          }
+        })
+        await prismatx.order.delete({
+          where: {
+            id: orderId,
+          },
+        
+        });
+        const payment = await prismatx.payment.findFirst({
+          where: {
+            orderId: orderId,
+          },
+        });
+        await prismatx.payment.delete({
+          where: {
+            id: payment.id,
+          }
+        })
+
+        console.log(`Order cleaned ${orderId}`)
+
+      });
+    }
+  }
+
+  async cancelOrder(orderId: string) {
+    const prisma = this.prismaService.getPrismaClient();
+    const order = await prisma.order.findFirst({
+      where: {
+        id: orderId,
+      },
+    });
+    if (order.status === 'COMPLETED') {
+      return;
+    }
+    await prisma.$transaction(async (prismatx) => {
+      const orderItems = await prismatx.orderItems.findMany({
+        where: {
+          orderId: orderId,
+        },
+      });
+      const productIds = orderItems.map((item) => item.productId);
+      await prismatx.product.updateMany({
+        where: {
+          id: {
+            in: productIds,
+          },
+        },
+        data: {
+          stock: { increment: 1 },
+        },
+      });
+      await prismatx.order.update({
+        where: {
+          id: orderId,
+        },
+        data: {
+          status: 'CANCELLED',
+        },
+      });
+    });
+  }
+
+  async completeOrder(orderId:string){
+    const prisma = this.prismaService.getPrismaClient();
+    const payment = await prisma.payment.findFirst({
+      where:{
+        orderId:orderId
+      }
+    })
+    if(payment.status!=="SUCCESSFULL"){
+      throw Error("Payment not successfull")
+    }
+    await prisma.order.update({
+      where:{
+        id:orderId
+      },
+      data:{
+        status:"COMPLETED"
+      }
+    })
   }
 }

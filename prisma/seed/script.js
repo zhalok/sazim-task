@@ -31,6 +31,17 @@ async function main() {
 
   console.log('✅ Seller User created:', sellerUser);
 
+  const product = await prisma.product.create({
+    data: {
+      name: 'Product 1',
+      description: 'Description 1',
+      price: 9.99,
+      stock: 1000,
+      uploaderId: sellerUser.Seller.id,
+    },
+  });
+  console.log('✅ Product created:', product);
+
   // 🔹 Create a Customer (User with role USER)
   const customerUser = await prisma.user.create({
     data: {
