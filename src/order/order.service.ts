@@ -25,8 +25,8 @@ export class OrderService {
     return this.orderRepository.getAllOrders({ page, limit, filter });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} order`;
+  findOne(id: string) {
+    return this.orderRepository.getOrder(id);
   }
 
   update(id: number, updateOrderInput: UpdateOrderInput) {

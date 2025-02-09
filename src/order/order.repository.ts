@@ -50,7 +50,7 @@ export class OrderRepository {
           customerEmail: createOrderInput.customerEmail,
           customerPhone: createOrderInput.customerPhone,
           totalAmount: totalAmount,
-          OrderItems: {
+          orderItems: {
             createMany: {
               data: orderItems.map((item) => ({
                 productId: item.productId.toString(),
@@ -209,5 +209,18 @@ export class OrderRepository {
       where: query,
     });
     return { orders, totalOrders };
+  }
+
+  async getOrder(id: string) {
+    const prisma = this.prismaService.getPrismaClient();
+    const order = await prisma.order.findFirst({
+      where: {
+        id: id,
+      },
+      include: {
+        orderItems: true,
+      },
+    });
+    return order;
   }
 }
