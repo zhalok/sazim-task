@@ -6,9 +6,9 @@ import { Product } from './entities/product.entity';
 export class ProductRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async createProduct(product: Product) {
+  async createProduct(product: Omit<Product, 'id'>) {
     const prisma: PrismaClient = this.prismaService.getPrismaClient();
-    const seller = await prisma.seller.findFirst({})
+    const seller = await prisma.seller.findFirst({});
 
     const productCreateResult = await prisma.product.create({
       data: {
@@ -16,7 +16,7 @@ export class ProductRepository {
         description: product.description,
         price: product.price,
         stock: product.stock,
-        uploaderId: seller.id
+        uploaderId: seller.id,
       },
     });
 
@@ -52,7 +52,7 @@ export class ProductRepository {
     return totalProducts;
   }
 
-  async updateProduct(id: string, product: Product) {
+  async updateProduct(id: string, product: Omit<Partial<Product>, 'id'>) {
     const prisma = this.prismaService.getPrismaClient();
     const productUpdateResult = await prisma.product.update({
       where: {

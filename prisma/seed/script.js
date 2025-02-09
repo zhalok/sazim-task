@@ -30,17 +30,80 @@ async function main() {
   });
 
   console.log('✅ Seller User created:', sellerUser);
-
-  const product = await prisma.product.create({
-    data: {
+  const products = [
+    {
       name: 'Product 1',
       description: 'Description 1',
       price: 9.99,
       stock: 1000,
-      uploaderId: sellerUser.Seller.id,
     },
+    {
+      name: 'Product 2',
+      description: 'Description 2',
+      price: 19.99,
+      stock: 50,
+    },
+    {
+      name: 'Product 3',
+      description: 'Description 3',
+      price: 14.99,
+      stock: 200,
+    },
+    {
+      name: 'Product 4',
+      description: 'Description 4',
+      price: 24.99,
+      stock: 75,
+    },
+    {
+      name: 'Product 5',
+      description: 'Description 5',
+      price: 29.99,
+      stock: 150,
+    },
+    {
+      name: 'Product 6',
+      description: 'Description 6',
+      price: 19.99,
+      stock: 100,
+    },
+    {
+      name: 'Product 7',
+      description: 'Description 7',
+      price: 9.99,
+      stock: 500,
+    },
+    {
+      name: 'Product 8',
+      description: 'Description 8',
+      price: 14.99,
+      stock: 250,
+    },
+    {
+      name: 'Product 9',
+      description: 'Description 9',
+      price: 24.99,
+      stock: 100,
+    },
+    {
+      name: 'Product 10',
+      description: 'Description 10',
+      price: 19.99,
+      stock: 300,
+    },
+  ].map((product) => {
+    return prisma.product.create({
+      data: {
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        stock: product.stock,
+        uploaderId: sellerUser.Seller.id,
+      },
+    });
   });
-  console.log('✅ Product created:', product);
+  await Promise.all(products);
+  console.log('✅ Products created:');
 
   // 🔹 Create a Customer (User with role USER)
   const customerUser = await prisma.user.create({

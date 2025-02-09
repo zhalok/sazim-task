@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { OrderStatus, PrismaClient } from '@prisma/client';
 import { CreateOrderInput } from './dto/create-order.input';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { GetOrdersFilter } from './dto/filter-orders.input';
 
 @Injectable()
 export class OrderRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async createOrder(createOrderInput: CreateOrderInput, customerId: string) {
+  async createOrder(createOrderInput: CreateOrderInput) {
     const prisma = this.prismaService.getPrismaClient();
     const { orderItems } = createOrderInput;
-    const dummyCustomer = await prisma.customer.findFirst();
     const order = await prisma.$transaction(async (prismatx) => {
       const products = await prismatx.product.findMany({
         where: {
@@ -47,7 +47,8 @@ export class OrderRepository {
 
       const order = await prismatx.order.create({
         data: {
-          customerId: dummyCustomer.id,
+          customerEmail: createOrderInput.customerEmail,
+          customerPhone: createOrderInput.customerPhone,
           totalAmount: totalAmount,
           OrderItems: {
             createMany: {
@@ -70,8 +71,8 @@ export class OrderRepository {
         },
       });
       setTimeout(() => {
-        this.deleteOrderIfPending(order.id);
-      }, 5000*60 );
+        this.cancelOrderIfPending(order.id);
+      }, 5000 * 60);
 
       return {
         id: order.id,
@@ -83,7 +84,7 @@ export class OrderRepository {
     return order;
   }
 
-  async deleteOrderIfPending(orderId: string) {
+  async cancelOrderIfPending(orderId: string) {
     const prisma = this.prismaService.getPrismaClient();
     const order = await prisma.order.findFirst({
       where: {
@@ -109,15 +110,17 @@ export class OrderRepository {
           },
         });
         await prismatx.orderItems.deleteMany({
-          where:{
-            orderId:orderId
-          }
-        })
-        await prismatx.order.delete({
+          where: {
+            orderId: orderId,
+          },
+        });
+        await prismatx.order.update({
           where: {
             id: orderId,
           },
-        
+          data: {
+            status: 'CANCELLED',
+          },
         });
         const payment = await prismatx.payment.findFirst({
           where: {
@@ -127,11 +130,10 @@ export class OrderRepository {
         await prismatx.payment.delete({
           where: {
             id: payment.id,
-          }
-        })
+          },
+        });
 
-        console.log(`Order cleaned ${orderId}`)
-
+        console.log(`Order cleaned ${orderId}`);
       });
     }
   }
@@ -174,23 +176,38 @@ export class OrderRepository {
     });
   }
 
-  async completeOrder(orderId:string){
-    const prisma = this.prismaService.getPrismaClient();
-    const payment = await prisma.payment.findFirst({
-      where:{
-        orderId:orderId
+  async getAllOrders({
+    limit,
+    page,
+    filter,
+  }: {
+    limit: number;
+    page: number;
+    filter?: GetOrdersFilter;
+  }) {
+    const query = {};
+
+    if (filter) {
+      if (filter.customerEmail) {
+        query['customerEmail'] = filter.customerEmail;
       }
-    })
-    if(payment.status!=="SUCCESSFULL"){
-      throw Error("Payment not successfull")
+      if (filter.status) {
+        query['status'] = filter.status as OrderStatus;
+      }
+      if (filter.createdAt) {
+        query['createdAt'] = filter.createdAt;
+      }
     }
-    await prisma.order.update({
-      where:{
-        id:orderId
-      },
-      data:{
-        status:"COMPLETED"
-      }
-    })
+
+    const prisma = this.prismaService.getPrismaClient();
+    const totalOrders = await prisma.order.count({
+      where: query,
+    });
+    const orders = await prisma.order.findMany({
+      skip: (page - 1) * limit,
+      take: limit,
+      where: query,
+    });
+    return { orders, totalOrders };
   }
 }

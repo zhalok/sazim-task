@@ -28,15 +28,14 @@ model Product {
 }
 
 model User {
-  id        String    @id @default(uuid()) // Unique ID
+  id        String   @id @default(uuid()) // Unique ID
   name      String
-  email     String    @unique // Unique email
+  email     String   @unique // Unique email
   password  String
-  role      Role      @default(USER) // Role-based access
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  role      Role     @default(USER) // Role-based access
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   Seller    Seller?
-  Customer  Customer?
 }
 
 model Seller {
@@ -55,12 +54,8 @@ model Customer {
   id        String      @id @default(uuid())
   name      String
   phone     String
-  email     String
+  email     String      @unique
   address   String
-  userId    String?     @unique
-  user      User?       @relation(fields: [userId], references: [id])
-  // we are assuming that a customer can by anonymous and purchase without signing up
-  Order     Order[]
   Rent      Rent[]
   RentItems RentItems[]
 }
@@ -81,14 +76,15 @@ model OrderItems {
 }
 
 model Order {
-  id          String       @id @default(uuid())
-  customerId  String
-  customer    Customer     @relation(fields: [customerId], references: [id])
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  OrderItems  OrderItems[]
-  status      OrderStatus
-  totalAmount Int
+  id            String       @id @default(uuid())
+  customerEmail String
+  customerPhone String
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  OrderItems    OrderItems[]
+  status        OrderStatus
+  totalAmount   Int
+  customerId    String?
 }
 
 model Payment {
