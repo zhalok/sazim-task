@@ -138,7 +138,7 @@ export class OrderRepository {
     }
   }
 
-  async cancelOrder(orderId: string) {
+  async cancelOrder(orderId: string, reason?: string) {
     const prisma = this.prismaService.getPrismaClient();
     const order = await prisma.order.findFirst({
       where: {
@@ -174,6 +174,7 @@ export class OrderRepository {
         },
         data: {
           status: 'CANCELLED',
+          cancellationReason: reason,
         },
       });
     });
@@ -181,7 +182,7 @@ export class OrderRepository {
 
   async completeOrder(orderId: string) {
     const prisma = this.prismaService.getPrismaClient();
-    await prisma.order.update({
+    return await prisma.order.update({
       where: {
         id: orderId,
       },

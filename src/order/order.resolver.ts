@@ -75,24 +75,20 @@ export class OrderResolver {
     };
   }
 
-  @Mutation(() => Order)
+  @Mutation(() => Order, { name: 'cancelOrder' })
   cancelOrder(
-    @Args('cancelOrder', { type: () => String }) id: string,
+    @Args('id', { type: () => String }) id: string,
     @Args('email') email: string,
+    @Args('reason', { type: () => String! }) reason?: string,
   ) {
-    return this.orderService.cancelOrder(id, email);
+    return this.orderService.cancelOrder(id, email, reason);
   }
 
-  @Mutation(() => Order)
+  @Mutation(() => Order, { name: 'completeOrder' })
   competeOrder(
-    @Args('completeOrder', { type: () => String }) id: string,
+    @Args('id', { type: () => String }) id: string,
     @Args('email') email: string,
   ) {
     return this.orderService.completeOrder(id, email);
-  }
-
-  @Mutation(() => Order)
-  removeOrder(@Args('id', { type: () => Int }) id: number) {
-    return this.orderService.remove(id);
   }
 }

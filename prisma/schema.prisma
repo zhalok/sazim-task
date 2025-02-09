@@ -76,15 +76,16 @@ model OrderItems {
 }
 
 model Order {
-  id            String       @id @default(uuid())
-  customerEmail String
-  customerPhone String
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  orderItems    OrderItems[]
-  status        OrderStatus
-  totalAmount   Int
-  customerId    String?
+  id                 String       @id @default(uuid())
+  customerEmail      String
+  customerPhone      String
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  orderItems         OrderItems[]
+  status             OrderStatus
+  totalAmount        Int
+  customerId         String?
+  cancellationReason String?
 }
 
 model Payment {

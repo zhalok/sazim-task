@@ -47,7 +47,7 @@ export class OrderService {
     return { orders, totalOrders };
   }
 
-  async cancelOrder(id: string, customerEmail: string) {
+  async cancelOrder(id: string, customerEmail: string, reason?: string) {
     const order = await this.orderRepository.getOrder(id);
     if (order.customerEmail !== customerEmail) {
       throw new HttpException(
@@ -55,7 +55,21 @@ export class OrderService {
         HttpStatus.UNAUTHORIZED,
       );
     }
-    await this.orderRepository.cancelOrder(id);
+    if (order.status === 'COMPLETED') {
+      throw new HttpException(
+        'Order already completed',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    if (order.status === 'CANCELLED') {
+      throw new HttpException(
+        'Order already cancelled',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    await this.orderRepository.cancelOrder(id, reason);
+    return order;
   }
 
   async completeOrder(id: string, customerEmail: string) {
@@ -67,7 +81,21 @@ export class OrderService {
         HttpStatus.UNAUTHORIZED,
       );
     }
-    await this.orderRepository.completeOrder(id);
+    if (order.status === 'COMPLETED') {
+      throw new HttpException(
+        'Order already completed',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    if (order.status === 'CANCELLED') {
+      throw new HttpException(
+        'Order already cancelled',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const updatedOrder = await this.orderRepository.completeOrder(id);
+    return updatedOrder;
   }
 
   remove(id: number) {
