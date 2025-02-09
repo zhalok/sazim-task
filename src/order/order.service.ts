@@ -1,6 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateOrderInput } from './dto/create-order.input';
-import { UpdateOrderInput } from './dto/update-order.input';
 import { OrderRepository } from './order.repository';
 import { GetOrdersFilter } from './dto/filter-orders.input';
 
@@ -48,8 +47,27 @@ export class OrderService {
     return { orders, totalOrders };
   }
 
-  update(id: number, updateOrderInput: UpdateOrderInput) {
-    return `This action updates a #${id} order`;
+  async cancelOrder(id: string, customerEmail: string) {
+    const order = await this.orderRepository.getOrder(id);
+    if (order.customerEmail !== customerEmail) {
+      throw new HttpException(
+        'Murubbi!, Murubbi!!, not your order',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+    await this.orderRepository.cancelOrder(id);
+  }
+
+  async completeOrder(id: string, customerEmail: string) {
+    const order = await this.orderRepository.getOrder(id);
+
+    if (order.customerEmail !== customerEmail) {
+      throw new HttpException(
+        'Murubbi!, Murubbi!!, not your order',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+    await this.orderRepository.completeOrder(id);
   }
 
   remove(id: number) {

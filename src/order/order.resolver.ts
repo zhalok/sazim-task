@@ -55,7 +55,7 @@ export class OrderResolver {
   }
 
   @Query(() => GetOrdersOutput, { name: 'myOrders' })
-  async findOrdersByCustomerEmail(
+  async findMyOrders(
     @Args('email', { type: () => String }) customerEmail: string,
     @Args('limit', { type: () => Int }) limit: number,
     @Args('page', { type: () => Int }) page: number,
@@ -76,8 +76,19 @@ export class OrderResolver {
   }
 
   @Mutation(() => Order)
-  updateOrder(@Args('updateOrderInput') updateOrderInput: UpdateOrderInput) {
-    return this.orderService.update(updateOrderInput.id, updateOrderInput);
+  cancelOrder(
+    @Args('cancelOrder', { type: () => String }) id: string,
+    @Args('email') email: string,
+  ) {
+    return this.orderService.cancelOrder(id, email);
+  }
+
+  @Mutation(() => Order)
+  competeOrder(
+    @Args('completeOrder', { type: () => String }) id: string,
+    @Args('email') email: string,
+  ) {
+    return this.orderService.completeOrder(id, email);
   }
 
   @Mutation(() => Order)

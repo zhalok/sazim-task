@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { OrderStatus, PrismaClient } from '@prisma/client';
 import { CreateOrderInput } from './dto/create-order.input';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -146,7 +146,10 @@ export class OrderRepository {
       },
     });
     if (order.status === 'COMPLETED') {
-      return;
+      throw new HttpException(
+        'Order already completed',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     await prisma.$transaction(async (prismatx) => {
       const orderItems = await prismatx.orderItems.findMany({
@@ -176,6 +179,17 @@ export class OrderRepository {
     });
   }
 
+  async completeOrder(orderId: string) {
+    const prisma = this.prismaService.getPrismaClient();
+    await prisma.order.update({
+      where: {
+        id: orderId,
+      },
+      data: {
+        status: 'COMPLETED',
+      },
+    });
+  }
   async getAllOrders({
     limit,
     page,
