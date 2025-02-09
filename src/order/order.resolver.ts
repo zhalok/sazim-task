@@ -16,12 +16,14 @@ export class OrderResolver {
     @Args('createOrderInput') createOrderInput: CreateOrderInput,
   ) {
     const order = await this.orderService.create(createOrderInput);
+
     return {
       data: {
         id: order.id,
         totalPayableAmount: order.totalPayableAmount,
         status: order.status,
         paymentId: order.paymentId,
+        orderType: order.type,
       },
     };
   }

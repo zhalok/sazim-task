@@ -10,7 +10,8 @@ export class OrderRepository {
 
   async createOrder(createOrderInput: CreateOrderInput) {
     const prisma = this.prismaService.getPrismaClient();
-    const { orderItems } = createOrderInput;
+    const { orderItems, orderType, rentPeriodInDays } = createOrderInput;
+
     const order = await prisma.$transaction(async (prismatx) => {
       const products = await prismatx.product.findMany({
         where: {
@@ -50,6 +51,8 @@ export class OrderRepository {
           customerEmail: createOrderInput.customerEmail,
           customerPhone: createOrderInput.customerPhone,
           totalAmount: totalAmount,
+          type: orderType,
+          rentPeriod: orderType === 'RENT' ? rentPeriodInDays : null,
           orderItems: {
             createMany: {
               data: orderItems.map((item) => ({
@@ -78,6 +81,7 @@ export class OrderRepository {
         id: order.id,
         totalPayableAmount: totalAmount,
         status: order.status,
+        type: order.type,
         paymentId: payment.id,
       };
     });

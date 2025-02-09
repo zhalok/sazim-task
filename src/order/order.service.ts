@@ -7,7 +7,6 @@ import { GetOrdersFilter } from './dto/filter-orders.input';
 export class OrderService {
   constructor(private readonly orderRepository: OrderRepository) {}
   async create(createOrderInput: CreateOrderInput) {
-    //sending dummy customer id for now
     const order = await this.orderRepository.createOrder(createOrderInput);
     return order;
   }

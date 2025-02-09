@@ -1,4 +1,5 @@
 import { Field, Int, InputType } from '@nestjs/graphql';
+import { OrderType } from '@prisma/client';
 
 @InputType()
 class InputOrderItem {
@@ -18,4 +19,10 @@ export class CreateOrderInput {
 
   @Field(() => [InputOrderItem])
   orderItems: InputOrderItem[];
+
+  @Field(() => String, { defaultValue: OrderType.PURCHASE })
+  orderType: OrderType;
+
+  @Field(() => Int, { nullable: true })
+  rentPeriodInDays?: number;
 }

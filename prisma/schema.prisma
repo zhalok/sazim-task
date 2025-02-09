@@ -21,7 +21,6 @@ model Product {
   stock       Int          @default(0)
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
-  RentItems   RentItems[]
   Seller      Seller?      @relation(fields: [uploaderId], references: [id])
   uploaderId  String?
   OrderItems  OrderItems[]
@@ -51,13 +50,11 @@ model Seller {
 }
 
 model Customer {
-  id        String      @id @default(uuid())
-  name      String
-  phone     String
-  email     String      @unique
-  address   String
-  Rent      Rent[]
-  RentItems RentItems[]
+  id      String @id @default(uuid())
+  name    String
+  phone   String
+  email   String @unique
+  address String
 }
 
 model SellerCompany {
@@ -86,6 +83,9 @@ model Order {
   totalAmount        Int
   customerId         String?
   cancellationReason String?
+  type               OrderType    @default(PURCHASE)
+  expireAt           DateTime     @default(dbgenerated("(now() + interval '5 minutes')"))
+  rentPeriod         Int?         @default(0)
 }
 
 model Payment {
@@ -95,24 +95,6 @@ model Payment {
   orderId   String
   expiredAt DateTime
   createdAt DateTime      @default(now())
-}
-
-model Rent {
-  id         String      @id @default(uuid())
-  customerId String
-  customer   Customer    @relation(fields: [customerId], references: [id])
-  RentItems  RentItems[]
-  status     RentStatus
-}
-
-model RentItems {
-  id         String    @id @default(uuid())
-  rentId     String
-  rent       Rent      @relation(fields: [rentId], references: [id])
-  productId  String
-  product    Product   @relation(fields: [productId], references: [id])
-  Customer   Customer? @relation(fields: [customerId], references: [id])
-  customerId String?
 }
 
 enum Role {
@@ -126,13 +108,12 @@ enum OrderStatus {
   PLACED
   COMPLETED
   CANCELLED
+  ON_RENT
 }
 
-enum RentStatus {
-  PENDING
-  ACTIVE
-  ENDED
-  CANCELLED
+enum OrderType {
+  PURCHASE
+  RENT
 }
 
 enum PaymentStatus {
