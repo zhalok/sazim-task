@@ -54,6 +54,27 @@ export class OrderResolver {
     return this.orderService.findOne(id);
   }
 
+  @Query(() => GetOrdersOutput, { name: 'myOrders' })
+  async findOrdersByCustomerEmail(
+    @Args('email', { type: () => String }) customerEmail: string,
+    @Args('limit', { type: () => Int }) limit: number,
+    @Args('page', { type: () => Int }) page: number,
+  ) {
+    const { orders, totalOrders } = await this.orderService.findMyOrders({
+      limit,
+      page,
+      customerEmail,
+    });
+    return {
+      pagination: {
+        limit,
+        page,
+        total: totalOrders,
+      },
+      data: orders,
+    };
+  }
+
   @Mutation(() => Order)
   updateOrder(@Args('updateOrderInput') updateOrderInput: UpdateOrderInput) {
     return this.orderService.update(updateOrderInput.id, updateOrderInput);

@@ -25,8 +25,27 @@ export class OrderService {
     return this.orderRepository.getAllOrders({ page, limit, filter });
   }
 
-  findOne(id: string) {
+  async findOne(id: string) {
     return this.orderRepository.getOrder(id);
+  }
+
+  async findMyOrders({
+    page,
+    limit,
+    customerEmail,
+  }: {
+    page: number;
+    limit: number;
+    customerEmail: string;
+  }) {
+    const { orders, totalOrders } = await this.orderRepository.getAllOrders({
+      limit: limit,
+      page: page,
+      filter: {
+        customerEmail,
+      },
+    });
+    return { orders, totalOrders };
   }
 
   update(id: number, updateOrderInput: UpdateOrderInput) {
