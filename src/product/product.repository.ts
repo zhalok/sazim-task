@@ -6,7 +6,7 @@ import { Product } from './entities/product.entity';
 export class ProductRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async createProduct(product: Omit<Product, 'id'>) {
+  async createProduct(product: Omit<Product, 'id'>, sellerId: string) {
     const prisma: PrismaClient = this.prismaService.getPrismaClient();
     const seller = await prisma.seller.findFirst({});
 
@@ -16,7 +16,7 @@ export class ProductRepository {
         description: product.description,
         price: product.price,
         stock: product.stock,
-        uploaderId: seller.id,
+        uploaderId: sellerId,
       },
     });
 

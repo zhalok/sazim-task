@@ -106,24 +106,6 @@ async function main() {
   console.log('✅ Products created:');
 
   // 🔹 Create a Customer (User with role USER)
-  const customerUser = await prisma.user.create({
-    data: {
-      name: 'Alice Smith',
-      email: 'alice@example.com',
-      password: 'hashedpassword',
-      role: Role.USER,
-      Customer: {
-        create: {
-          name: 'Alice Smith',
-          phone: '1234567890',
-          email: 'alice@example.com',
-          address: '123 Main Street',
-        },
-      },
-    },
-    include: { Customer: true },
-  });
-  console.log('✅ Customer User created:', customerUser);
 
   console.log('🎉 Database seeding completed!');
 }

@@ -7,13 +7,16 @@ import { Product } from '@prisma/client';
 @Injectable()
 export class ProductService {
   constructor(private readonly productRepository: ProductRepository) {}
-  async create(createProductInput: CreateProductInput) {
-    const product = await this.productRepository.createProduct({
-      name: createProductInput.name,
-      description: createProductInput.description,
-      price: createProductInput.price,
-      stock: createProductInput.stock,
-    });
+  async create(createProductInput: CreateProductInput, sellerId: string) {
+    const product = await this.productRepository.createProduct(
+      {
+        name: createProductInput.name,
+        description: createProductInput.description,
+        price: createProductInput.price,
+        stock: createProductInput.stock,
+      },
+      sellerId,
+    );
     return product;
   }
 

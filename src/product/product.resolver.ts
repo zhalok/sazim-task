@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, Int, Context } from '@nestjs/graphql';
 import { ProductService } from './product.service';
 import { Product } from './entities/product.entity';
 import { CreateProductInput } from './dto/create-product.input';
@@ -6,16 +6,31 @@ import { UpdateProductInput } from './dto/update-product.input';
 import { ProductsOutput } from './dto/get-products.output';
 import { ProductOutput } from './dto/product.output';
 import { DeleteProductOutput } from './dto/delete-product.output';
+import { HttpException, HttpStatus, UseGuards } from '@nestjs/common';
+import { GqlAuthGuard } from 'src/common/guards/auth.guard';
+import { Roles } from 'src/common/decorators/role.decorator';
+import { Role } from '@prisma/client';
+import { RolesGuard } from 'src/common/guards/role.guard';
 
 @Resolver(() => Product)
 export class ProductResolver {
   constructor(private readonly productService: ProductService) {}
 
   @Mutation(() => ProductOutput)
+  @Roles(Role.SELLER)
+  @UseGuards(GqlAuthGuard, RolesGuard)
   async createProduct(
     @Args('createProductInput') createProductInput: CreateProductInput,
+    @Context() context: any,
   ) {
-    const createdProduct = await this.productService.create(createProductInput);
+    const { sellerId } = context.req.user;
+    if (!sellerId) {
+      throw new HttpException('Unauthorized access', HttpStatus.UNAUTHORIZED);
+    }
+    const createdProduct = await this.productService.create(
+      createProductInput,
+      sellerId,
+    );
     return {
       data: createdProduct,
     };
