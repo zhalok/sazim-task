@@ -18,26 +18,20 @@ export class OrderRepository {
           id: {
             in: orderItems.map((item) => item.productId.toString()),
           },
-          stock: {
-            gt: 0,
-          },
         },
       });
-      await prismatx.product.updateMany({
-        where: {
-          id: {
-            in: orderItems.map((item) => item.productId.toString()),
-          },
-        },
-        data: {
-          stock: { decrement: 1 },
-        },
-      });
-      if (products.length !== orderItems.length) {
-        throw new Error('Not enough stock');
-      }
 
       const totalAmount = products.reduce((acc, product) => {
+        if (
+          product.stock <
+          orderItems.find((item) => item.productId.toString() === product.id)
+            .quantity
+        ) {
+          throw new HttpException(
+            `Product ${product.name} is out of stock`,
+            HttpStatus.BAD_REQUEST,
+          );
+        }
         return (
           acc +
           product.price *
@@ -45,6 +39,21 @@ export class OrderRepository {
               .quantity
         );
       }, 0);
+
+      const productDeductionPromises = orderItems.map((item) => {
+        return prismatx.product.update({
+          where: {
+            id: item.productId.toString(),
+          },
+          data: {
+            stock: {
+              decrement: item.quantity,
+            },
+          },
+        });
+      });
+
+      await Promise.all(productDeductionPromises);
 
       const order = await prismatx.order.create({
         data: {
@@ -102,17 +111,17 @@ export class OrderRepository {
             orderId: orderId,
           },
         });
-        const productIds = orderItems.map((item) => item.productId);
-        await prismatx.product.updateMany({
-          where: {
-            id: {
-              in: productIds,
+        const productUpdatePromises = orderItems.map((item) => {
+          return prismatx.product.update({
+            where: {
+              id: item.productId,
             },
-          },
-          data: {
-            stock: { increment: 1 },
-          },
+            data: {
+              stock: { increment: item.quantity },
+            },
+          });
         });
+        await Promise.all(productUpdatePromises);
         await prismatx.orderItems.deleteMany({
           where: {
             orderId: orderId,
@@ -156,17 +165,17 @@ export class OrderRepository {
             orderId: orderId,
           },
         });
-        const productIds = orderItems.map((item) => item.productId);
-        await prsimatx.product.updateMany({
-          where: {
-            id: {
-              in: productIds,
+        const productUpdatePromises = orderItems.map((item) => {
+          return prsimatx.product.update({
+            where: {
+              id: item.productId,
             },
-          },
-          data: {
-            stock: { increment: 1 },
-          },
+            data: {
+              stock: { increment: item.quantity },
+            },
+          });
         });
+        await Promise.all(productUpdatePromises);
         await prsimatx.orderItems.deleteMany({
           where: {
             orderId: orderId,
@@ -197,6 +206,48 @@ export class OrderRepository {
         HttpStatus.BAD_REQUEST,
       );
     }
+
+    if (order.status === 'CANCELLED') {
+      throw new HttpException(
+        'Order already cancelled',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const updatedOrder = await prisma.$transaction(async (prismatx) => {
+      const orderItems = await prismatx.orderItems.findMany({
+        where: {
+          orderId: orderId,
+        },
+      });
+      const productUpdatePromises = orderItems.map((item) => {
+        return prismatx.product.update({
+          where: {
+            id: item.productId,
+          },
+          data: {
+            stock: { increment: item.quantity },
+          },
+        });
+      });
+      await Promise.all(productUpdatePromises);
+      await prismatx.orderItems.deleteMany({
+        where: {
+          orderId: orderId,
+        },
+      });
+      return await prismatx.order.update({
+        where: {
+          id: orderId,
+        },
+        data: {
+          status: 'CANCELLED',
+          cancellationReason: reason,
+        },
+      });
+    });
+
+    return updatedOrder;
   }
 
   async completeOrder(orderId: string) {

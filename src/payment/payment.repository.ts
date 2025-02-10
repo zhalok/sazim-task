@@ -70,4 +70,59 @@ export class PaymentRepository {
     });
     return result;
   }
+
+  async cancelPayment(paymentId: string) {
+    const prisma = this.prismaService.getPrismaClient();
+    const payment = await prisma.payment.findFirst({
+      where: {
+        id: paymentId,
+      },
+    });
+    if (payment.status !== 'PENDING') {
+      throw new HttpException('Payment is not pending', HttpStatus.BAD_REQUEST);
+    }
+    const res = await prisma.$transaction(async (prismaTx) => {
+      const orderItems = await prismaTx.orderItems.findMany({
+        where: {
+          orderId: payment.orderId,
+        },
+      });
+      const productUpdatePromises = orderItems.map((item) => {
+        return prismaTx.product.update({
+          where: {
+            id: item.productId,
+          },
+          data: {
+            stock: {
+              increment: item.quantity,
+            },
+          },
+        });
+      });
+      await Promise.all(productUpdatePromises);
+      const updatedOrder = await prismaTx.order.update({
+        where: {
+          id: payment.orderId,
+        },
+        data: {
+          status: 'CANCELLED',
+          cancellationReason: 'Payment Cancelled',
+        },
+      });
+      const updatedPayment = await prismaTx.payment.update({
+        where: {
+          id: paymentId,
+        },
+        data: {
+          status: 'FAILED',
+        },
+      });
+      return {
+        paymentStatus: updatedPayment.status,
+        orderStatus: updatedOrder.status,
+        orderId: payment.orderId,
+      };
+    });
+    return res;
+  }
 }

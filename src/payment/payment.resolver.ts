@@ -4,6 +4,7 @@ import { Payment } from './entities/payment.entity';
 import { CreatePaymentInput } from './dto/create-payment.input';
 import { MakePaymentOutput } from './dto/create-payment.output';
 import { OrderStatus } from '@prisma/client';
+import { CancelPaymentOutput } from './dto/cancel-payment.output';
 
 @Resolver(() => Payment)
 export class PaymentResolver {
@@ -30,18 +31,8 @@ export class PaymentResolver {
     }
   }
 
-  @Query(() => [Payment], { name: 'payment' })
-  findAll() {
-    return this.paymentService.findAll();
-  }
-
-  @Query(() => Payment, { name: 'payment' })
-  findOne(@Args('id', { type: () => Int }) id: number) {
-    return this.paymentService.findOne(id);
-  }
-
-  @Mutation(() => Payment)
-  removePayment(@Args('id', { type: () => Int }) id: number) {
-    return this.paymentService.remove(id);
+  @Mutation(() => CancelPaymentOutput)
+  cancelPayment(@Args('id') paymentId: string) {
+    return this.paymentService.cancelPayment(paymentId);
   }
 }

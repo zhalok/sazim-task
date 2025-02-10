@@ -19,7 +19,7 @@ export class PaymentService {
     return `This action returns a #${id} payment`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} payment`;
+  cancelPayment(id: string) {
+    return this.paymentRepository.cancelPayment(id);
   }
 }
