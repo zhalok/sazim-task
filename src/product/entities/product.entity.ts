@@ -16,4 +16,7 @@ export class Product {
 
   @Field(() => Int)
   stock: number;
+
+  @Field(() => [String], { defaultValue: [] })
+  categories: string[];
 }

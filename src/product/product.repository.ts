@@ -2,6 +2,7 @@ import { Global, Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Product } from './entities/product.entity';
+import { FilterProducts } from './dto/filter-products.input';
 @Injectable()
 export class ProductRepository {
   constructor(private readonly prismaService: PrismaService) {}
@@ -17,13 +18,22 @@ export class ProductRepository {
         price: product.price,
         stock: product.stock,
         uploaderId: sellerId,
+        categories: product.categories,
       },
     });
 
     return productCreateResult;
   }
 
-  async getProducts({ page, limit }: { limit: number; page: number }) {
+  async getProducts({
+    page,
+    limit,
+    query,
+  }: {
+    limit: number;
+    page: number;
+    query?: any;
+  }) {
     const prisma: PrismaClient = this.prismaService.getPrismaClient();
     const _page = Math.max(page, 1);
     const _limit = Math.max(limit, 1);
@@ -32,6 +42,7 @@ export class ProductRepository {
     const products = await prisma.product.findMany({
       skip: (_page - 1) * _limit,
       take: _limit,
+      where: query,
     });
     return products;
   }
@@ -46,9 +57,12 @@ export class ProductRepository {
     return product;
   }
 
-  async countProducts(filter: Partial<Product & { id: string }>) {
+  async countProducts(query: any) {
     const prisma = this.prismaService.getPrismaClient();
-    const totalProducts = await prisma.product.count({ where: filter });
+
+    const totalProducts = await prisma.product.count({
+      where: query,
+    });
     return totalProducts;
   }
 

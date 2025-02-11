@@ -13,4 +13,7 @@ export class CreateProductInput {
 
   @Field(() => Int)
   stock: number;
+
+  @Field(() => [String], { defaultValue: [] })
+  categories: string[];
 }

@@ -11,6 +11,7 @@ import { GqlAuthGuard } from 'src/common/guards/auth.guard';
 import { Roles } from 'src/common/decorators/role.decorator';
 import { Role } from '@prisma/client';
 import { RolesGuard } from 'src/common/guards/role.guard';
+import { FilterProducts } from './dto/filter-products.input';
 
 @Resolver(() => Product)
 export class ProductResolver {
@@ -24,6 +25,7 @@ export class ProductResolver {
     @Context() context: any,
   ) {
     const { sellerId } = context.req.user;
+
     if (!sellerId) {
       throw new HttpException('Unauthorized access', HttpStatus.UNAUTHORIZED);
     }
@@ -40,10 +42,16 @@ export class ProductResolver {
   async findAll(
     @Args('limit', { type: () => Int }) limit: number,
     @Args('page', { type: () => Int }) page: number,
+    @Args('filter', { type: () => FilterProducts, nullable: true })
+    filter?: FilterProducts,
   ) {
     const { products, totalProducts } = await this.productService.findAll({
       page,
       limit,
+      filter: {
+        name: filter?.name,
+        categories: filter?.categories,
+      },
     });
     return {
       pagination: {

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateProductInput } from './dto/create-product.input';
 import { UpdateProductInput } from './dto/update-product.input';
 import { ProductRepository } from './product.repository';
-import { Product } from '@prisma/client';
+import { FilterProducts } from './dto/filter-products.input';
 
 @Injectable()
 export class ProductService {
@@ -14,6 +14,7 @@ export class ProductService {
         description: createProductInput.description,
         price: createProductInput.price,
         stock: createProductInput.stock,
+        categories: createProductInput.categories,
       },
       sellerId,
     );
@@ -23,13 +24,30 @@ export class ProductService {
   async findAll({
     limit,
     page,
+    filter,
   }: {
     limit: number;
     page: number;
-    filter?: Partial<Product & { id: string }>;
+    filter?: FilterProducts;
   }) {
-    const totalProducts = await this.productRepository.countProducts({});
-    const products = await this.productRepository.getProducts({ limit, page });
+    const query = {};
+    if (filter.name) {
+      query['name'] = {
+        contains: filter.name,
+      };
+    }
+
+    if (filter.categories) {
+      query['categories'] = {
+        hasSome: filter.categories,
+      };
+    }
+    const totalProducts = await this.productRepository.countProducts(query);
+    const products = await this.productRepository.getProducts({
+      limit,
+      page,
+      query,
+    });
     return { products, totalProducts };
   }
 

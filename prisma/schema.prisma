@@ -24,6 +24,7 @@ model Product {
   Seller      Seller?      @relation(fields: [uploaderId], references: [id])
   uploaderId  String?
   OrderItems  OrderItems[]
+  categories  String[]     @default([])
 }
 
 model User {
