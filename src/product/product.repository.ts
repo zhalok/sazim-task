@@ -1,8 +1,7 @@
-import { Global, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Product } from './entities/product.entity';
-import { FilterProducts } from './dto/filter-products.input';
 @Injectable()
 export class ProductRepository {
   constructor(private readonly prismaService: PrismaService) {}
