@@ -12,6 +12,8 @@ import { Roles } from 'src/common/decorators/role.decorator';
 import { Role } from '@prisma/client';
 import { RolesGuard } from 'src/common/guards/role.guard';
 import { FilterProducts } from './dto/filter-products.input';
+import { ProductsCategoriesOutput } from './dto/get-product-categories.output';
+import { productCategories } from './constants';
 
 @Resolver(() => Product)
 export class ProductResolver {
@@ -38,6 +40,44 @@ export class ProductResolver {
     };
   }
 
+  @Roles(Role.SELLER)
+  @UseGuards(GqlAuthGuard, RolesGuard)
+  @Query(() => ProductsOutput, { name: 'myProducts' })
+  async getMyProducts(
+    @Args('limit', { type: () => Int }) limit: number,
+    @Args('page', { type: () => Int }) page: number,
+    @Context() context: any,
+  ) {
+    const { sellerId } = context.req.user;
+
+    if (!sellerId) {
+      throw new HttpException('Unauthorized access', HttpStatus.UNAUTHORIZED);
+    }
+    const { products, totalProducts } = await this.productService.findAll({
+      limit,
+      page,
+      filter: {
+        sellerId,
+      },
+    });
+    console.log('products', products);
+    return {
+      pagination: {
+        limit,
+        page,
+        total: totalProducts,
+      },
+      data: products,
+    };
+  }
+
+  @Query(() => ProductsCategoriesOutput, { name: 'productCategories' })
+  async getProductCategories(): Promise<ProductsCategoriesOutput> {
+    console.log(productCategories);
+    return {
+      categories: productCategories,
+    };
+  }
   @Query(() => ProductsOutput, { name: 'products' })
   async findAll(
     @Args('limit', { type: () => Int }) limit: number,

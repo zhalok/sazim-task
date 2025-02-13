@@ -42,6 +42,9 @@ export class ProductService {
         hasSome: filter.categories,
       };
     }
+    if(filter.sellerId){
+      query['uploaderId'] = filter.sellerId
+    }
     const totalProducts = await this.productRepository.countProducts(query);
     const products = await this.productRepository.getProducts({
       limit,

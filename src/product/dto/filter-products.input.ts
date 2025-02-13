@@ -7,4 +7,7 @@ export class FilterProducts {
 
   @Field(() => [String], { nullable: true })
   categories?: string[];
+
+  @Field(() => [String], { nullable: true })
+  sellerId?: string;
 }

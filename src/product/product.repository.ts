@@ -40,9 +40,12 @@ export class ProductRepository {
     console.log((_page - 1) * _limit);
 
     const products = await prisma.product.findMany({
+      where: query,
+      orderBy: {
+        createdAt: 'desc',
+      },
       skip: (_page - 1) * _limit,
       take: _limit,
-      where: query,
     });
     return products;
   }
