@@ -36,8 +36,7 @@ export class ProductRepository {
   }) {
     const prisma: PrismaClient = this.prismaService.getPrismaClient();
     const _page = Math.max(page, 1);
-    const _limit = Math.max(limit, 1);
-    console.log((_page - 1) * _limit);
+    const _limit = limit > 100 ? 100 : Math.max(limit, 1);
 
     const products = await prisma.product.findMany({
       where: query,
