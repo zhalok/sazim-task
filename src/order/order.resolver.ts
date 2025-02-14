@@ -115,11 +115,10 @@ export class OrderResolver {
     return this.orderService.cancelOrder(id, email, reason);
   }
 
+  @Roles(Role.SELLER)
+  @UseGuards(GqlAuthGuard, RolesGuard)
   @Mutation(() => Order, { name: 'completeOrder' })
-  competeOrder(
-    @Args('id', { type: () => String }) id: string,
-    @Args('email') email: string,
-  ) {
-    return this.orderService.completeOrder(id, email);
+  competeOrder(@Args('id', { type: () => String }) id: string) {
+    return this.orderService.completeOrder(id);
   }
 }

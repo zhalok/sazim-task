@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { OrderStatus, PrismaClient } from '@prisma/client';
+import { Order, OrderStatus, OrderType, PrismaClient } from '@prisma/client';
 import { CreateOrderInput } from './dto/create-order.input';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { GetOrdersFilter } from './dto/filter-orders.input';
@@ -254,6 +254,14 @@ export class OrderRepository {
 
   async completeOrder(orderId: string) {
     const prisma = this.prismaService.getPrismaClient();
+    const order = await prisma.order.findFirst({
+      where: {
+        id: orderId,
+      },
+    });
+
+    this.addAdditionalCharges(order).catch((e) => console.log(e));
+
     return await prisma.order.update({
       where: {
         id: orderId,
@@ -315,5 +323,25 @@ export class OrderRepository {
     });
 
     return order;
+  }
+
+  async addAdditionalCharges(order: Order) {
+    const prisma = this.prismaService.getPrismaClient();
+    const nowTime = new Date();
+    if (order.type === OrderType.RENT && order.expireAt < nowTime) {
+      // this is just for abstraction
+      const extraTime = order.expireAt.getTime() - nowTime.getTime();
+      const extraCharge = (extraTime / (1000 * 60 * 60)) * 0.1;
+      const extraChargePayment = await prisma.payment.create({
+        data: {
+          orderId: order.id,
+          amount: extraCharge,
+          status: 'PENDING',
+        },
+      });
+      console.log(
+        `Sent email to ${order.customerEmail} for payment ${extraChargePayment.id}`,
+      );
+    }
   }
 }

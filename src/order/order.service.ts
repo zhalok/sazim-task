@@ -76,15 +76,9 @@ export class OrderService {
     return order;
   }
 
-  async completeOrder(id: string, customerEmail: string) {
+  async completeOrder(id: string) {
     const order = await this.orderRepository.getOrder(id);
 
-    if (order.customerEmail !== customerEmail) {
-      throw new HttpException(
-        'Murubbi!, Murubbi!!, not your order',
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
     if (order.status === 'COMPLETED') {
       throw new HttpException(
         'Order already completed',
