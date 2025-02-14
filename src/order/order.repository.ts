@@ -258,7 +258,50 @@ export class OrderRepository {
       where: {
         id: orderId,
       },
+      include: {
+        payment: true,
+      },
     });
+
+    const payments = order.payment;
+    if (payments.length === 0) {
+      await prisma.payment.create({
+        data: {
+          orderId: orderId,
+          amount: order.totalAmount,
+          status: 'PENDING',
+        },
+      });
+      throw new HttpException('No payment found', HttpStatus.BAD_REQUEST);
+    }
+
+    const payment = order.payment[0];
+
+    if (payment.status !== 'SUCCESSFULL') {
+      if (payment.expiredAt.getTime() < new Date().getTime()) {
+        await prisma.payment.deleteMany({
+          where: {
+            orderId,
+          },
+        });
+        await prisma.payment.create({
+          data: {
+            orderId: orderId,
+            amount: order.totalAmount,
+            status: 'PENDING',
+          },
+        });
+      }
+
+      throw new HttpException('Payment not successful', HttpStatus.BAD_REQUEST);
+    }
+
+    if (order.status === 'COMPLETED') {
+      throw new HttpException(
+        'Order already completed',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
 
     this.addAdditionalCharges(order).catch((e) => console.log(e));
 

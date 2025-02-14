@@ -28,9 +28,9 @@ export class Order {
   @Field(() => String)
   status: string;
 
-  @Field(() => String)
+  @Field(() => String, { nullable: true })
   paymentId: string;
 
-  @Field(() => String)
+  @Field(() => String, { nullable: true })
   paymentStatus: string;
 }
