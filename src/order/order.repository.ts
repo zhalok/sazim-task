@@ -57,8 +57,10 @@ export class OrderRepository {
 
       const order = await prismatx.order.create({
         data: {
+          customerName: createOrderInput.customerName,
           customerEmail: createOrderInput.customerEmail,
           customerPhone: createOrderInput.customerPhone,
+          customerAddress: createOrderInput.customerAddress,
           totalAmount: totalAmount,
           type: orderType,
           rentPeriod: orderType === 'RENT' ? rentPeriodInDays : null,

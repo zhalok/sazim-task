@@ -77,6 +77,8 @@ model Order {
   id                 String       @id @default(uuid())
   customerEmail      String
   customerPhone      String
+  customerName       String
+  customerAddress    String
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @updatedAt
   orderItems         OrderItems[]

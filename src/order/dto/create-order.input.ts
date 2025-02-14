@@ -12,10 +12,16 @@ class InputOrderItem {
 @InputType()
 export class CreateOrderInput {
   @Field(() => String)
+  customerName: string;
+
+  @Field(() => String)
   customerEmail: string;
 
   @Field(() => String)
   customerPhone: string;
+
+  @Field(() => String)
+  customerAddress: string;
 
   @Field(() => [InputOrderItem])
   orderItems: InputOrderItem[];
