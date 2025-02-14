@@ -30,4 +30,7 @@ export class Order {
 
   @Field(() => String)
   paymentId: string;
+
+  @Field(() => String)
+  paymentStatus: string;
 }

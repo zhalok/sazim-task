@@ -76,6 +76,7 @@ export class OrderResolver {
       paymentId: order.payment?.[0]?.id,
       customerEmail: order.customerEmail,
       orderItems: order.orderItems,
+      paymentStatus: order.payment?.[0]?.status,
     };
   }
 
