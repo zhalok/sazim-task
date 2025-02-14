@@ -1,24 +1,15 @@
-import {
-  Resolver,
-  Query,
-  Mutation,
-  Args,
-  Int,
-  Context,
-  Field,
-  ObjectType,
-} from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, Int, Context } from '@nestjs/graphql';
 import { OrderService } from './order.service';
 import { Order } from './entities/order.entity';
 import { CreateOrderInput } from './dto/create-order.input';
 import { CreateOrderOutput } from './dto/create-order.output';
 import { GetOrdersOutput } from './dto/get-orders.output';
 import { GetOrdersFilter } from './dto/filter-orders.input';
-import { UseGuards } from '@nestjs/common';
-import { GqlAuthGuard } from 'src/common/guards/auth.guard';
 import { Roles } from 'src/common/decorators/role.decorator';
 import { Role } from '@prisma/client';
 import { RolesGuard } from 'src/common/guards/role.guard';
+import { GqlAuthGuard } from 'src/common/guards/auth.guard';
+import { UseGuards } from '@nestjs/common';
 
 @Resolver(() => Order)
 export class OrderResolver {
@@ -107,7 +98,7 @@ export class OrderResolver {
 
   @Mutation(() => String)
   async createToken(
-    @Args('customerEmail', { type: () => String }) customerEmail: string,
+    @Args('email', { type: () => String }) customerEmail: string,
   ) {
     const link = await this.orderService.createAndSendCustomerTokenViaEmail({
       customerEmail,
