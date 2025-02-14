@@ -2,10 +2,15 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateOrderInput } from './dto/create-order.input';
 import { OrderRepository } from './order.repository';
 import { GetOrdersFilter } from './dto/filter-orders.input';
+import { JwtService } from '@nestjs/jwt';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class OrderService {
-  constructor(private readonly orderRepository: OrderRepository) {}
+  constructor(
+    private readonly orderRepository: OrderRepository,
+    private readonly jwtService: JwtService,
+  ) {}
   async create(createOrderInput: CreateOrderInput) {
     const order = await this.orderRepository.createOrder(createOrderInput);
     return order;
@@ -97,7 +102,21 @@ export class OrderService {
     return updatedOrder;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} order`;
+  async createAndSendCustomerTokenViaEmail({
+    customerEmail,
+  }: {
+    customerEmail: string;
+  }) {
+    const token = this.jwtService.sign({
+      email: customerEmail,
+      role: Role.USER,
+    });
+    this.sendEmail(customerEmail, token);
+  }
+
+  async sendEmail(email: string, payload: any) {
+    setTimeout(() => {
+      console.log('Email sent to', email, payload);
+    }, 2000);
   }
 }

@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, Int, Context } from '@nestjs/graphql';
 import { OrderService } from './order.service';
 import { Order } from './entities/order.entity';
 import { CreateOrderInput } from './dto/create-order.input';
@@ -6,6 +6,11 @@ import { UpdateOrderInput } from './dto/update-order.input';
 import { CreateOrderOutput } from './dto/create-order.output';
 import { GetOrdersOutput } from './dto/get-orders.output';
 import { GetOrdersFilter } from './dto/filter-orders.input';
+import { UseGuards } from '@nestjs/common';
+import { GqlAuthGuard } from 'src/common/guards/auth.guard';
+import { Roles } from 'src/common/decorators/role.decorator';
+import { Role } from '@prisma/client';
+import { RolesGuard } from 'src/common/guards/role.guard';
 
 @Resolver(() => Order)
 export class OrderResolver {
@@ -56,16 +61,20 @@ export class OrderResolver {
     return this.orderService.findOne(id);
   }
 
+  @Roles(Role.USER)
+  @UseGuards(GqlAuthGuard, RolesGuard)
   @Query(() => GetOrdersOutput, { name: 'myOrders' })
   async findMyOrders(
-    @Args('email', { type: () => String }) customerEmail: string,
     @Args('limit', { type: () => Int }) limit: number,
     @Args('page', { type: () => Int }) page: number,
+    @Context() context: any,
   ) {
+    const user = context.req.user;
+    const email = user.email;
     const { orders, totalOrders } = await this.orderService.findMyOrders({
       limit,
       page,
-      customerEmail,
+      customerEmail: email,
     });
     return {
       pagination: {
