@@ -27,4 +27,7 @@ export class Order {
 
   @Field(() => String)
   status: string;
+
+  @Field(() => String)
+  paymentId: string;
 }

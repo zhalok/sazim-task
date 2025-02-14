@@ -11,7 +11,6 @@ import {
 import { OrderService } from './order.service';
 import { Order } from './entities/order.entity';
 import { CreateOrderInput } from './dto/create-order.input';
-import { UpdateOrderInput } from './dto/update-order.input';
 import { CreateOrderOutput } from './dto/create-order.output';
 import { GetOrdersOutput } from './dto/get-orders.output';
 import { GetOrdersFilter } from './dto/filter-orders.input';
@@ -66,8 +65,18 @@ export class OrderResolver {
   }
 
   @Query(() => Order, { name: 'order' })
-  findOne(@Args('id', { type: () => String }) id: string) {
-    return this.orderService.findOne(id);
+  async findOne(
+    @Args('id', { type: () => String }) id: string,
+  ): Promise<Order> {
+    const order = await this.orderService.findOne(id);
+    return {
+      id: order.id,
+      totalAmount: order.totalAmount,
+      status: order.status,
+      paymentId: order.payment?.[0]?.id,
+      customerEmail: order.customerEmail,
+      orderItems: order.orderItems,
+    };
   }
 
   @Roles(Role.USER)

@@ -310,9 +310,10 @@ export class OrderRepository {
             product: true,
           },
         },
+        payment: true,
       },
     });
-    console.log(order);
+
     return order;
   }
 }

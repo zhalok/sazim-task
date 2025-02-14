@@ -83,12 +83,13 @@ model Order {
   updatedAt          DateTime     @updatedAt
   orderItems         OrderItems[]
   status             OrderStatus
-  totalAmount        Int
+  totalAmount        Float
   customerId         String?
   cancellationReason String?
   type               OrderType    @default(PURCHASE)
   expireAt           DateTime     @default(dbgenerated("(now() + interval '5 minutes')"))
   rentPeriod         Int?         @default(0)
+  payment            Payment[]
 }
 
 model Payment {
@@ -96,6 +97,7 @@ model Payment {
   amount    Float
   status    PaymentStatus
   orderId   String
+  order     Order         @relation(fields: [orderId], references: [id])
   expiredAt DateTime      @default(dbgenerated("(now() + interval '2 minutes')"))
   createdAt DateTime      @default(now())
 }
