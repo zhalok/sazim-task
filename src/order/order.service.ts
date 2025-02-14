@@ -111,7 +111,7 @@ export class OrderService {
       email: customerEmail,
       role: Role.USER,
     });
-    const authorizedLink = `${process.env.CLIENT_BASE}/orders?token=${token}`;
+    const authorizedLink = `${process.env.CLIENT_BASE}/orders?customerToken=${token}`;
     this.sendEmail(customerEmail, authorizedLink);
     return authorizedLink;
   }
