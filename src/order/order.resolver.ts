@@ -1,4 +1,13 @@
-import { Resolver, Query, Mutation, Args, Int, Context } from '@nestjs/graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Args,
+  Int,
+  Context,
+  Field,
+  ObjectType,
+} from '@nestjs/graphql';
 import { OrderService } from './order.service';
 import { Order } from './entities/order.entity';
 import { CreateOrderInput } from './dto/create-order.input';
@@ -84,6 +93,16 @@ export class OrderResolver {
       },
       data: orders,
     };
+  }
+
+  @Mutation(() => String)
+  async createToken(
+    @Args('customerEmail', { type: () => String }) customerEmail: string,
+  ) {
+    const link = await this.orderService.createAndSendCustomerTokenViaEmail({
+      customerEmail,
+    });
+    return link;
   }
 
   @Mutation(() => Order, { name: 'cancelOrder' })
