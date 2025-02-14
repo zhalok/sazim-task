@@ -305,9 +305,14 @@ export class OrderRepository {
         id: id,
       },
       include: {
-        orderItems: true,
+        orderItems: {
+          include: {
+            product: true,
+          },
+        },
       },
     });
+    console.log(order);
     return order;
   }
 }
