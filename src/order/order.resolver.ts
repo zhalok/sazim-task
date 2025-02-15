@@ -106,12 +106,16 @@ export class OrderResolver {
     return link;
   }
 
+  @Roles(Role.USER)
+  @UseGuards(GqlAuthGuard, RolesGuard)
   @Mutation(() => Order, { name: 'cancelOrder' })
   cancelOrder(
     @Args('id', { type: () => String }) id: string,
-    @Args('email') email: string,
+    @Context() context: any,
     @Args('reason', { type: () => String! }) reason?: string,
   ) {
+    const user = context.req.user;
+    const email = user.email;
     return this.orderService.cancelOrder(id, email, reason);
   }
 
@@ -121,4 +125,7 @@ export class OrderResolver {
   competeOrder(@Args('id', { type: () => String }) id: string) {
     return this.orderService.completeOrder(id);
   }
+
+  @Mutation(() => String)
+  async deleteOrder() {}
 }
