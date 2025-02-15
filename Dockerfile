@@ -29,4 +29,4 @@ COPY --from=build /app/package.json ./package.json
 EXPOSE 3000
 
 # Run the application
-CMD ["node", "dist/main.js"]
+CMD ["sh", "-c", "npx prisma db push && node dist/main.js"]
