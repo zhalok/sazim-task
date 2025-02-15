@@ -1,18 +1,17 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
-import { PaymentService } from './payment.service';
-import { Payment } from './entities/payment.entity';
-import { CreatePaymentInput } from './dto/create-payment.input';
-import { MakePaymentOutput } from './dto/create-payment.output';
-import { OrderStatus } from '@prisma/client';
-import { CancelPaymentOutput } from './dto/cancel-payment.output';
+import { Args, Mutation, Resolver } from "@nestjs/graphql";
+import { CancelPaymentOutput } from "./dto/cancel-payment.output";
+import { CreatePaymentInput } from "./dto/create-payment.input";
+import { MakePaymentOutput } from "./dto/create-payment.output";
+import { Payment } from "./entities/payment.entity";
+import { PaymentService } from "./payment.service";
 
 @Resolver(() => Payment)
 export class PaymentResolver {
   constructor(private readonly paymentService: PaymentService) {}
 
-  @Mutation(() => MakePaymentOutput, { name: 'makePayment' })
+  @Mutation(() => MakePaymentOutput, { name: "makePayment" })
   async makePayment(
-    @Args('createPaymentInput') createPaymentInput: CreatePaymentInput,
+    @Args("createPaymentInput") createPaymentInput: CreatePaymentInput,
   ): Promise<MakePaymentOutput> {
     try {
       const { orderId, orderStatus, paymentStatus } =
@@ -32,7 +31,7 @@ export class PaymentResolver {
   }
 
   @Mutation(() => CancelPaymentOutput)
-  cancelPayment(@Args('id') paymentId: string) {
+  cancelPayment(@Args("id") paymentId: string) {
     return this.paymentService.cancelPayment(paymentId);
   }
 }

@@ -1,5 +1,5 @@
-import { Field, Int, InputType } from '@nestjs/graphql';
-import { OrderType } from '@prisma/client';
+import { Field, InputType, Int } from "@nestjs/graphql";
+import { OrderType } from "@prisma/client";
 
 @InputType()
 class InputOrderItem {

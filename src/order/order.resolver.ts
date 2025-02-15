@@ -1,15 +1,15 @@
-import { Resolver, Query, Mutation, Args, Int, Context } from '@nestjs/graphql';
-import { OrderService } from './order.service';
-import { Order } from './entities/order.entity';
-import { CreateOrderInput } from './dto/create-order.input';
-import { CreateOrderOutput } from './dto/create-order.output';
-import { GetOrdersOutput } from './dto/get-orders.output';
-import { GetOrdersFilter } from './dto/filter-orders.input';
-import { Roles } from 'src/common/decorators/role.decorator';
-import { Role } from '@prisma/client';
-import { RolesGuard } from 'src/common/guards/role.guard';
-import { GqlAuthGuard } from 'src/common/guards/auth.guard';
-import { HttpException, HttpStatus, UseGuards } from '@nestjs/common';
+import { HttpException, HttpStatus, UseGuards } from "@nestjs/common";
+import { Args, Context, Int, Mutation, Query, Resolver } from "@nestjs/graphql";
+import { Role } from "@prisma/client";
+import { Roles } from "src/common/decorators/role.decorator";
+import { GqlAuthGuard } from "src/common/guards/auth.guard";
+import { RolesGuard } from "src/common/guards/role.guard";
+import { CreateOrderInput } from "./dto/create-order.input";
+import { CreateOrderOutput } from "./dto/create-order.output";
+import { GetOrdersFilter } from "./dto/filter-orders.input";
+import { GetOrdersOutput } from "./dto/get-orders.output";
+import { Order } from "./entities/order.entity";
+import { OrderService } from "./order.service";
 
 @Resolver(() => Order)
 export class OrderResolver {
@@ -17,7 +17,7 @@ export class OrderResolver {
 
   @Mutation(() => CreateOrderOutput)
   async createOrder(
-    @Args('createOrderInput') createOrderInput: CreateOrderInput,
+    @Args("createOrderInput") createOrderInput: CreateOrderInput,
   ) {
     const order = await this.orderService.create(createOrderInput);
 
@@ -32,11 +32,11 @@ export class OrderResolver {
     };
   }
 
-  @Query(() => GetOrdersOutput, { name: 'orders' })
+  @Query(() => GetOrdersOutput, { name: "orders" })
   async findAll(
-    @Args('limit', { type: () => Int }) limit: number,
-    @Args('page', { type: () => Int }) page: number,
-    @Args('filter', { type: () => GetOrdersFilter, nullable: true })
+    @Args("limit", { type: () => Int }) limit: number,
+    @Args("page", { type: () => Int }) page: number,
+    @Args("filter", { type: () => GetOrdersFilter, nullable: true })
     filter: GetOrdersFilter,
   ) {
     const { orders, totalOrders } = await this.orderService.findAll({
@@ -55,13 +55,13 @@ export class OrderResolver {
     };
   }
 
-  @Query(() => Order, { name: 'order' })
+  @Query(() => Order, { name: "order" })
   async findOne(
-    @Args('id', { type: () => String }) id: string,
+    @Args("id", { type: () => String }) id: string,
   ): Promise<Order> {
     const order = await this.orderService.findOne(id);
     if (!order)
-      throw new HttpException('order not found', HttpStatus.NOT_FOUND);
+      throw new HttpException("order not found", HttpStatus.NOT_FOUND);
     return {
       id: order.id,
       totalAmount: order.totalAmount,
@@ -75,10 +75,10 @@ export class OrderResolver {
 
   @Roles(Role.USER)
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Query(() => GetOrdersOutput, { name: 'myOrders' })
+  @Query(() => GetOrdersOutput, { name: "myOrders" })
   async findMyOrders(
-    @Args('limit', { type: () => Int }) limit: number,
-    @Args('page', { type: () => Int }) page: number,
+    @Args("limit", { type: () => Int }) limit: number,
+    @Args("page", { type: () => Int }) page: number,
     @Context() context: any,
   ) {
     const user = context.req.user;
@@ -100,7 +100,7 @@ export class OrderResolver {
 
   @Mutation(() => String)
   async createToken(
-    @Args('email', { type: () => String }) customerEmail: string,
+    @Args("email", { type: () => String }) customerEmail: string,
   ) {
     const link = await this.orderService.createAndSendCustomerTokenViaEmail({
       customerEmail,
@@ -110,11 +110,11 @@ export class OrderResolver {
 
   @Roles(Role.USER)
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Mutation(() => Order, { name: 'cancelOrder' })
+  @Mutation(() => Order, { name: "cancelOrder" })
   cancelOrder(
-    @Args('id', { type: () => String }) id: string,
+    @Args("id", { type: () => String }) id: string,
     @Context() context: any,
-    @Args('reason', { type: () => String! }) reason?: string,
+    @Args("reason", { type: () => String! }) reason?: string,
   ) {
     const user = context.req.user;
     const email = user.email;
@@ -123,15 +123,15 @@ export class OrderResolver {
 
   @Roles(Role.SELLER)
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Mutation(() => Order, { name: 'completeOrder' })
-  competeOrder(@Args('id', { type: () => String }) id: string) {
+  @Mutation(() => Order, { name: "completeOrder" })
+  competeOrder(@Args("id", { type: () => String }) id: string) {
     return this.orderService.completeOrder(id);
   }
 
   @Roles(Role.SELLER)
   @UseGuards(GqlAuthGuard, RolesGuard)
   @Mutation(() => String)
-  async deleteOrder(@Args('id', { type: () => String }) id: string) {
+  async deleteOrder(@Args("id", { type: () => String }) id: string) {
     await this.orderService.deleteOrder(id);
     return `deleted order ${id} successfully`;
   }

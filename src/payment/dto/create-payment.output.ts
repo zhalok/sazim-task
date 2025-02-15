@@ -1,5 +1,5 @@
-import { Field, ObjectType } from '@nestjs/graphql';
-import { OrderStatus, PaymentStatus } from '@prisma/client';
+import { Field, ObjectType } from "@nestjs/graphql";
+import { OrderStatus, PaymentStatus } from "@prisma/client";
 
 @ObjectType()
 export class MakePaymentOutput {

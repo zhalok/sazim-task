@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
-import { CreateProductInput } from './dto/create-product.input';
-import { UpdateProductInput } from './dto/update-product.input';
-import { ProductRepository } from './product.repository';
-import { FilterProducts } from './dto/filter-products.input';
+import { Injectable } from "@nestjs/common";
+import { CreateProductInput } from "./dto/create-product.input";
+import { FilterProducts } from "./dto/filter-products.input";
+import { UpdateProductInput } from "./dto/update-product.input";
+import { ProductRepository } from "./product.repository";
 
 @Injectable()
 export class ProductService {
@@ -32,18 +32,18 @@ export class ProductService {
   }) {
     const query = {};
     if (filter.name) {
-      query['name'] = {
+      query["name"] = {
         contains: filter.name,
       };
     }
 
     if (filter.categories) {
-      query['categories'] = {
+      query["categories"] = {
         hasSome: filter.categories,
       };
     }
-    if(filter.sellerId){
-      query['uploaderId'] = filter.sellerId
+    if (filter.sellerId) {
+      query["uploaderId"] = filter.sellerId;
     }
     const totalProducts = await this.productRepository.countProducts(query);
     const products = await this.productRepository.getProducts({

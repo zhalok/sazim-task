@@ -1,7 +1,7 @@
-import { Module } from '@nestjs/common';
-import { ProductService } from './product.service';
-import { ProductResolver } from './product.resolver';
-import { ProductRepository } from './product.repository';
+import { Module } from "@nestjs/common";
+import { ProductRepository } from "./product.repository";
+import { ProductResolver } from "./product.resolver";
+import { ProductService } from "./product.service";
 
 @Module({
   providers: [ProductResolver, ProductService, ProductRepository],

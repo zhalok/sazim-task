@@ -1,19 +1,19 @@
-import { Resolver, Query, Mutation, Args, Int, Context } from '@nestjs/graphql';
-import { ProductService } from './product.service';
-import { Product } from './entities/product.entity';
-import { CreateProductInput } from './dto/create-product.input';
-import { UpdateProductInput } from './dto/update-product.input';
-import { ProductsOutput } from './dto/get-products.output';
-import { ProductOutput } from './dto/product.output';
-import { DeleteProductOutput } from './dto/delete-product.output';
-import { HttpException, HttpStatus, UseGuards } from '@nestjs/common';
-import { GqlAuthGuard } from 'src/common/guards/auth.guard';
-import { Roles } from 'src/common/decorators/role.decorator';
-import { Role } from '@prisma/client';
-import { RolesGuard } from 'src/common/guards/role.guard';
-import { FilterProducts } from './dto/filter-products.input';
-import { ProductsCategoriesOutput } from './dto/get-product-categories.output';
-import { productCategories } from './constants';
+import { HttpException, HttpStatus, UseGuards } from "@nestjs/common";
+import { Args, Context, Int, Mutation, Query, Resolver } from "@nestjs/graphql";
+import { Role } from "@prisma/client";
+import { Roles } from "src/common/decorators/role.decorator";
+import { GqlAuthGuard } from "src/common/guards/auth.guard";
+import { RolesGuard } from "src/common/guards/role.guard";
+import { productCategories } from "./constants";
+import { CreateProductInput } from "./dto/create-product.input";
+import { DeleteProductOutput } from "./dto/delete-product.output";
+import { FilterProducts } from "./dto/filter-products.input";
+import { ProductsCategoriesOutput } from "./dto/get-product-categories.output";
+import { ProductsOutput } from "./dto/get-products.output";
+import { ProductOutput } from "./dto/product.output";
+import { UpdateProductInput } from "./dto/update-product.input";
+import { Product } from "./entities/product.entity";
+import { ProductService } from "./product.service";
 
 @Resolver(() => Product)
 export class ProductResolver {
@@ -23,13 +23,13 @@ export class ProductResolver {
   @Roles(Role.SELLER)
   @UseGuards(GqlAuthGuard, RolesGuard)
   async createProduct(
-    @Args('createProductInput') createProductInput: CreateProductInput,
+    @Args("createProductInput") createProductInput: CreateProductInput,
     @Context() context: any,
   ) {
     const { sellerId } = context.req.user;
 
     if (!sellerId) {
-      throw new HttpException('Unauthorized access', HttpStatus.UNAUTHORIZED);
+      throw new HttpException("Unauthorized access", HttpStatus.UNAUTHORIZED);
     }
     const createdProduct = await this.productService.create(
       createProductInput,
@@ -42,16 +42,16 @@ export class ProductResolver {
 
   @Roles(Role.SELLER)
   @UseGuards(GqlAuthGuard, RolesGuard)
-  @Query(() => ProductsOutput, { name: 'myProducts' })
+  @Query(() => ProductsOutput, { name: "myProducts" })
   async getMyProducts(
-    @Args('limit', { type: () => Int }) limit: number,
-    @Args('page', { type: () => Int }) page: number,
+    @Args("limit", { type: () => Int }) limit: number,
+    @Args("page", { type: () => Int }) page: number,
     @Context() context: any,
   ) {
     const { sellerId } = context.req.user;
 
     if (!sellerId) {
-      throw new HttpException('Unauthorized access', HttpStatus.UNAUTHORIZED);
+      throw new HttpException("Unauthorized access", HttpStatus.UNAUTHORIZED);
     }
     const { products, totalProducts } = await this.productService.findAll({
       limit,
@@ -60,7 +60,7 @@ export class ProductResolver {
         sellerId,
       },
     });
-    console.log('products', products);
+    console.log("products", products);
     return {
       pagination: {
         limit,
@@ -71,18 +71,18 @@ export class ProductResolver {
     };
   }
 
-  @Query(() => ProductsCategoriesOutput, { name: 'productCategories' })
+  @Query(() => ProductsCategoriesOutput, { name: "productCategories" })
   async getProductCategories(): Promise<ProductsCategoriesOutput> {
     console.log(productCategories);
     return {
       categories: productCategories,
     };
   }
-  @Query(() => ProductsOutput, { name: 'products' })
+  @Query(() => ProductsOutput, { name: "products" })
   async findAll(
-    @Args('limit', { type: () => Int }) limit: number,
-    @Args('page', { type: () => Int }) page: number,
-    @Args('filter', { type: () => FilterProducts, nullable: true })
+    @Args("limit", { type: () => Int }) limit: number,
+    @Args("page", { type: () => Int }) page: number,
+    @Args("filter", { type: () => FilterProducts, nullable: true })
     filter?: FilterProducts,
   ) {
     const { products, totalProducts } = await this.productService.findAll({
@@ -103,16 +103,16 @@ export class ProductResolver {
     };
   }
 
-  @Query(() => ProductOutput, { name: 'product' })
-  async findOne(@Args('id', { type: () => String }) id: string) {
+  @Query(() => ProductOutput, { name: "product" })
+  async findOne(@Args("id", { type: () => String }) id: string) {
     const product = await this.productService.findOne(id);
     return { data: product };
   }
 
   @Mutation(() => ProductOutput)
   async updateProduct(
-    @Args('id', { type: () => String }) id: string,
-    @Args('updateProductInput') updateProductInput: UpdateProductInput,
+    @Args("id", { type: () => String }) id: string,
+    @Args("updateProductInput") updateProductInput: UpdateProductInput,
   ) {
     const updatedProduct = await this.productService.update(
       id,
@@ -124,7 +124,7 @@ export class ProductResolver {
   }
 
   @Mutation(() => DeleteProductOutput)
-  async removeProduct(@Args('id', { type: () => String }) id: string) {
+  async removeProduct(@Args("id", { type: () => String }) id: string) {
     const deletedProduct = await this.productService.remove(id);
     return {
       message: `deleted product ${deletedProduct.id} successfully`,

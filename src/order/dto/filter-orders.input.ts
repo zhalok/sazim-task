@@ -1,5 +1,4 @@
-import { Field, InputType } from '@nestjs/graphql';
-import { OrderStatus } from '@prisma/client';
+import { Field, InputType } from "@nestjs/graphql";
 
 @InputType()
 export class GetOrdersFilter {

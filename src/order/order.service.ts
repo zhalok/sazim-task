@@ -1,9 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { CreateOrderInput } from './dto/create-order.input';
-import { OrderRepository } from './order.repository';
-import { GetOrdersFilter } from './dto/filter-orders.input';
-import { JwtService } from '@nestjs/jwt';
-import { Role } from '@prisma/client';
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
+import { Role } from "@prisma/client";
+import { CreateOrderInput } from "./dto/create-order.input";
+import { GetOrdersFilter } from "./dto/filter-orders.input";
+import { OrderRepository } from "./order.repository";
 
 @Injectable()
 export class OrderService {
@@ -55,20 +55,20 @@ export class OrderService {
     const order = await this.orderRepository.getOrder(id);
     if (order.customerEmail !== customerEmail) {
       throw new HttpException(
-        'Murubbi!, Murubbi!!, not your order',
+        "Murubbi!, Murubbi!!, not your order",
         HttpStatus.UNAUTHORIZED,
       );
     }
-    if (order.status === 'COMPLETED') {
+    if (order.status === "COMPLETED") {
       throw new HttpException(
-        'Order already completed',
+        "Order already completed",
         HttpStatus.BAD_REQUEST,
       );
     }
 
-    if (order.status === 'CANCELLED') {
+    if (order.status === "CANCELLED") {
       throw new HttpException(
-        'Order already cancelled',
+        "Order already cancelled",
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -79,16 +79,16 @@ export class OrderService {
   async completeOrder(id: string) {
     const order = await this.orderRepository.getOrder(id);
 
-    if (order.status === 'COMPLETED') {
+    if (order.status === "COMPLETED") {
       throw new HttpException(
-        'Order already completed',
+        "Order already completed",
         HttpStatus.BAD_REQUEST,
       );
     }
 
-    if (order.status === 'CANCELLED') {
+    if (order.status === "CANCELLED") {
       throw new HttpException(
-        'Order already cancelled',
+        "Order already cancelled",
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -116,7 +116,7 @@ export class OrderService {
 
   async sendEmail(email: string, payload: any) {
     setTimeout(() => {
-      console.log('Email sent to', email, payload);
+      console.log("Email sent to", email, payload);
     }, 2000);
   }
 }

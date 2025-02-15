@@ -1,12 +1,12 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { Product } from './entities/product.entity';
+import { Injectable } from "@nestjs/common";
+import { PrismaClient } from "@prisma/client";
+import { PrismaService } from "src/prisma/prisma.service";
+import { Product } from "./entities/product.entity";
 @Injectable()
 export class ProductRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async createProduct(product: Omit<Product, 'id'>, sellerId: string) {
+  async createProduct(product: Omit<Product, "id">, sellerId: string) {
     const prisma: PrismaClient = this.prismaService.getPrismaClient();
     const seller = await prisma.seller.findFirst({});
 
@@ -40,7 +40,7 @@ export class ProductRepository {
     const products = await prisma.product.findMany({
       where: query,
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
       skip: (_page - 1) * _limit,
       take: _limit,
@@ -67,7 +67,7 @@ export class ProductRepository {
     return totalProducts;
   }
 
-  async updateProduct(id: string, product: Omit<Partial<Product>, 'id'>) {
+  async updateProduct(id: string, product: Omit<Partial<Product>, "id">) {
     const prisma = this.prismaService.getPrismaClient();
     const productUpdateResult = await prisma.product.update({
       where: {

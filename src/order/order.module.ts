@@ -1,7 +1,7 @@
-import { Module } from '@nestjs/common';
-import { OrderService } from './order.service';
-import { OrderResolver } from './order.resolver';
-import { OrderRepository } from './order.repository';
+import { Module } from "@nestjs/common";
+import { OrderRepository } from "./order.repository";
+import { OrderResolver } from "./order.resolver";
+import { OrderService } from "./order.service";
 
 @Module({
   providers: [OrderResolver, OrderService, OrderRepository],

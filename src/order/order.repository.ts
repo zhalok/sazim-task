@@ -1,8 +1,8 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { Order, OrderStatus, OrderType, PrismaClient } from '@prisma/client';
-import { CreateOrderInput } from './dto/create-order.input';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { GetOrdersFilter } from './dto/filter-orders.input';
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { Order, OrderStatus, OrderType } from "@prisma/client";
+import { PrismaService } from "src/prisma/prisma.service";
+import { CreateOrderInput } from "./dto/create-order.input";
+import { GetOrdersFilter } from "./dto/filter-orders.input";
 
 @Injectable()
 export class OrderRepository {
@@ -63,7 +63,7 @@ export class OrderRepository {
           customerAddress: createOrderInput.customerAddress,
           totalAmount: totalAmount,
           type: orderType,
-          rentPeriod: orderType === 'RENT' ? rentPeriodInDays : null,
+          rentPeriod: orderType === "RENT" ? rentPeriodInDays : null,
           orderItems: {
             createMany: {
               data: orderItems.map((item) => ({
@@ -72,7 +72,7 @@ export class OrderRepository {
               })),
             },
           },
-          status: 'PENDING',
+          status: "PENDING",
         },
       });
 
@@ -80,7 +80,7 @@ export class OrderRepository {
         data: {
           orderId: order.id,
           amount: totalAmount,
-          status: 'PENDING',
+          status: "PENDING",
           expiredAt: new Date(Date.now() + 1000 * 60 * 60),
         },
       });
@@ -145,7 +145,7 @@ export class OrderRepository {
         id: orderId,
       },
     });
-    if (order.status === 'PENDING') {
+    if (order.status === "PENDING") {
       await this.deleteOrder(orderId);
     }
   }
@@ -160,7 +160,7 @@ export class OrderRepository {
     const rentExpireAt = order.expireAt;
     const now = new Date();
 
-    if (order.type === 'RENT' && now > rentExpireAt) {
+    if (order.type === "RENT" && now > rentExpireAt) {
       await prisma.$transaction(async (prsimatx) => {
         const orderItems = await prsimatx.orderItems.findMany({
           where: {
@@ -188,7 +188,7 @@ export class OrderRepository {
             id: orderId,
           },
           data: {
-            status: 'EXPIRED',
+            status: "EXPIRED",
           },
         });
       });
@@ -202,16 +202,16 @@ export class OrderRepository {
         id: orderId,
       },
     });
-    if (order.status === 'COMPLETED') {
+    if (order.status === "COMPLETED") {
       throw new HttpException(
-        'Order already completed',
+        "Order already completed",
         HttpStatus.BAD_REQUEST,
       );
     }
 
-    if (order.status === 'CANCELLED') {
+    if (order.status === "CANCELLED") {
       throw new HttpException(
-        'Order already cancelled',
+        "Order already cancelled",
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -243,7 +243,7 @@ export class OrderRepository {
           id: orderId,
         },
         data: {
-          status: 'CANCELLED',
+          status: "CANCELLED",
           cancellationReason: reason,
         },
       });
@@ -269,15 +269,15 @@ export class OrderRepository {
         data: {
           orderId: orderId,
           amount: order.totalAmount,
-          status: 'PENDING',
+          status: "PENDING",
         },
       });
-      throw new HttpException('No payment found', HttpStatus.BAD_REQUEST);
+      throw new HttpException("No payment found", HttpStatus.BAD_REQUEST);
     }
 
     const payment = order.payment[0];
 
-    if (payment.status !== 'SUCCESSFULL') {
+    if (payment.status !== "SUCCESSFULL") {
       if (payment.expiredAt.getTime() < new Date().getTime()) {
         await prisma.payment.deleteMany({
           where: {
@@ -288,17 +288,17 @@ export class OrderRepository {
           data: {
             orderId: orderId,
             amount: order.totalAmount,
-            status: 'PENDING',
+            status: "PENDING",
           },
         });
       }
 
-      throw new HttpException('Payment not successful', HttpStatus.BAD_REQUEST);
+      throw new HttpException("Payment not successful", HttpStatus.BAD_REQUEST);
     }
 
-    if (order.status === 'COMPLETED') {
+    if (order.status === "COMPLETED") {
       throw new HttpException(
-        'Order already completed',
+        "Order already completed",
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -310,7 +310,7 @@ export class OrderRepository {
         id: orderId,
       },
       data: {
-        status: 'COMPLETED',
+        status: "COMPLETED",
       },
     });
   }
@@ -327,13 +327,13 @@ export class OrderRepository {
 
     if (filter) {
       if (filter.customerEmail) {
-        query['customerEmail'] = filter.customerEmail;
+        query["customerEmail"] = filter.customerEmail;
       }
       if (filter.status) {
-        query['status'] = filter.status as OrderStatus;
+        query["status"] = filter.status as OrderStatus;
       }
       if (filter.createdAt) {
-        query['createdAt'] = filter.createdAt;
+        query["createdAt"] = filter.createdAt;
       }
     }
 
@@ -344,7 +344,7 @@ export class OrderRepository {
     const orders = await prisma.order.findMany({
       where: query,
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
       skip: (page - 1) * limit,
       take: limit,
@@ -382,7 +382,7 @@ export class OrderRepository {
         data: {
           orderId: order.id,
           amount: extraCharge,
-          status: 'PENDING',
+          status: "PENDING",
         },
       });
       console.log(
@@ -400,9 +400,9 @@ export class OrderRepository {
       },
     });
 
-    if (order.status === 'COMPLETED') {
+    if (order.status === "COMPLETED") {
       throw new HttpException(
-        'Order cannot be deleted',
+        "Order cannot be deleted",
         HttpStatus.BAD_REQUEST,
       );
     }

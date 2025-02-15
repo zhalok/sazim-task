@@ -1,6 +1,6 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { OrderRepository } from 'src/order/order.repository';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { OrderRepository } from "src/order/order.repository";
+import { PrismaService } from "src/prisma/prisma.service";
 
 @Injectable()
 export class PaymentRepository {
@@ -24,15 +24,15 @@ export class PaymentRepository {
           id: paymentId,
         },
       });
-      throw new HttpException('Payment is expired', HttpStatus.BAD_REQUEST);
+      throw new HttpException("Payment is expired", HttpStatus.BAD_REQUEST);
     }
     const order = await prisma.order.findFirst({
       where: {
         id: payment.orderId,
       },
     });
-    if (order.status !== 'PENDING') {
-      throw new HttpException('Order is not pending', HttpStatus.BAD_REQUEST);
+    if (order.status !== "PENDING") {
+      throw new HttpException("Order is not pending", HttpStatus.BAD_REQUEST);
     }
     const rentPeriodInDays = order.rentPeriod;
     const expireAt = new Date();
@@ -44,7 +44,7 @@ export class PaymentRepository {
           id: paymentId,
         },
         data: {
-          status: 'SUCCESSFULL',
+          status: "SUCCESSFULL",
         },
       });
       const updatedOrder = await prismatx.order.update({
@@ -52,7 +52,7 @@ export class PaymentRepository {
           id: payment.orderId,
         },
         data: {
-          status: order.type === 'RENT' ? 'ON_RENT' : 'PLACED',
+          status: order.type === "RENT" ? "ON_RENT" : "PLACED",
           expireAt,
         },
       });
@@ -78,8 +78,8 @@ export class PaymentRepository {
         id: paymentId,
       },
     });
-    if (payment.status !== 'PENDING') {
-      throw new HttpException('Payment is not pending', HttpStatus.BAD_REQUEST);
+    if (payment.status !== "PENDING") {
+      throw new HttpException("Payment is not pending", HttpStatus.BAD_REQUEST);
     }
     const res = await prisma.$transaction(async (prismaTx) => {
       const orderItems = await prismaTx.orderItems.findMany({
@@ -105,8 +105,8 @@ export class PaymentRepository {
           id: payment.orderId,
         },
         data: {
-          status: 'CANCELLED',
-          cancellationReason: 'Payment Cancelled',
+          status: "CANCELLED",
+          cancellationReason: "Payment Cancelled",
         },
       });
       const updatedPayment = await prismaTx.payment.update({
@@ -114,7 +114,7 @@ export class PaymentRepository {
           id: paymentId,
         },
         data: {
-          status: 'FAILED',
+          status: "FAILED",
         },
       });
       return {

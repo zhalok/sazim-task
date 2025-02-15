@@ -1,6 +1,5 @@
-import { Field, Float, ObjectType } from '@nestjs/graphql';
-import { Pagination } from 'src/common/dtos/pagination.dto';
-import { Order } from '../entities/order.entity';
+import { Field, Float, ObjectType } from "@nestjs/graphql";
+import { Pagination } from "src/common/dtos/pagination.dto";
 
 @ObjectType()
 class Orderdata {

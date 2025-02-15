@@ -1,6 +1,6 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
-import { Product } from '../entities/product.entity';
-import { Pagination } from 'src/common/dtos/pagination.dto';
+import { Field, ObjectType } from "@nestjs/graphql";
+import { Pagination } from "src/common/dtos/pagination.dto";
+import { Product } from "../entities/product.entity";
 
 @ObjectType()
 export class ProductsOutput {

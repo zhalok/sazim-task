@@ -1,6 +1,6 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { JwtService } from '@nestjs/jwt';
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
+import { PrismaService } from "src/prisma/prisma.service";
 
 @Injectable()
 export class AuthService {
@@ -29,11 +29,11 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new HttpException('User does not exist', HttpStatus.UNAUTHORIZED);
+      throw new HttpException("User does not exist", HttpStatus.UNAUTHORIZED);
     }
 
     if (!this.hashCompare(user.password, password)) {
-      throw new HttpException('Wrong password', HttpStatus.UNAUTHORIZED);
+      throw new HttpException("Wrong password", HttpStatus.UNAUTHORIZED);
     }
 
     const payload: {
@@ -49,7 +49,7 @@ export class AuthService {
     };
 
     switch (user.role) {
-      case 'SELLER':
+      case "SELLER":
         const seller = await prisma.seller.findFirst({
           where: {
             userId: user.id,
@@ -58,7 +58,7 @@ export class AuthService {
         // in this case we have only one type of user
         // but in larger actual systems we may find several types of users with some of their own identities
         // therefore we will include them in the switch statement cases if required in the future
-        payload['sellerId'] = seller.id;
+        payload["sellerId"] = seller.id;
         break;
     }
     return {
