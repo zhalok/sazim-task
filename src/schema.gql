@@ -1,0 +1,183 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type AuthMeOutput {
+  valid: Boolean!
+}
+
+type LoginOutput {
+  accessToken: String!
+}
+
+type OrderData {
+  id: String!
+  totalPayableAmount: Float!
+  status: String!
+  paymentId: String!
+  orderType: String!
+}
+
+type CreateOrderOutput {
+  data: OrderData!
+}
+
+type Pagination {
+  limit: Int!
+  page: Int!
+  total: Int!
+}
+
+type Orderdata {
+  id: String!
+  totalAmount: Float!
+  status: String!
+}
+
+type GetOrdersOutput {
+  pagination: Pagination!
+  data: [Orderdata!]!
+}
+
+type Product {
+  id: String!
+  name: String!
+  description: String
+  price: Float!
+  stock: Int!
+  categories: [String!]!
+}
+
+type OrderItem {
+  productId: String!
+  quantity: Int!
+  product: Product!
+}
+
+type Order {
+  id: String!
+  orderItems: [OrderItem!]!
+  customerEmail: String!
+  totalAmount: Float!
+  status: String!
+  paymentId: String
+  paymentStatus: String
+}
+
+type CancelPaymentOutput {
+  paymentStatus: String!
+  orderStatus: String!
+  orderId: String!
+}
+
+type MakePaymentOutput {
+  ok: Boolean!
+  error: String
+  orderId: String
+  paymentStatus: String
+  orderStatus: String
+}
+
+type DeleteProductOutput {
+  message: String!
+}
+
+type ProductCategory {
+  label: String!
+  value: String!
+}
+
+type ProductsCategoriesOutput {
+  categories: [ProductCategory!]!
+}
+
+type ProductsOutput {
+  pagination: Pagination!
+  data: [Product!]!
+}
+
+type ProductOutput {
+  data: Product!
+}
+
+type Query {
+  myProducts(limit: Int!, page: Int!): ProductsOutput!
+  productCategories: ProductsCategoriesOutput!
+  products(limit: Int!, page: Int!, filter: FilterProducts): ProductsOutput!
+  product(id: String!): ProductOutput!
+  orders(limit: Int!, page: Int!, filter: GetOrdersFilter): GetOrdersOutput!
+  order(id: String!): Order!
+  myOrders(limit: Int!, page: Int!): GetOrdersOutput!
+  authMe: AuthMeOutput!
+}
+
+input FilterProducts {
+  name: String
+  categories: [String!]
+  sellerId: [String!]
+}
+
+input GetOrdersFilter {
+  customerEmail: String
+  status: String
+  createdAt: DateTime
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Mutation {
+  createProduct(createProductInput: CreateProductInput!): ProductOutput!
+  updateProduct(id: String!, updateProductInput: UpdateProductInput!): ProductOutput!
+  removeProduct(id: String!): DeleteProductOutput!
+  createOrder(createOrderInput: CreateOrderInput!): CreateOrderOutput!
+  createToken(email: String!): String!
+  cancelOrder(id: String!, reason: String!): Order!
+  completeOrder(id: String!): Order!
+  deleteOrder(id: String!): String!
+  makePayment(createPaymentInput: CreatePaymentInput!): MakePaymentOutput!
+  cancelPayment(id: String!): CancelPaymentOutput!
+  login(loginInput: LoginInput!): LoginOutput!
+}
+
+input CreateProductInput {
+  name: String!
+  description: String
+  price: Float!
+  stock: Int!
+  categories: [String!]! = []
+}
+
+input UpdateProductInput {
+  name: String!
+  description: String
+  price: Float!
+  stock: Int!
+  categories: [String!] = []
+}
+
+input CreateOrderInput {
+  customerName: String!
+  customerEmail: String!
+  customerPhone: String!
+  customerAddress: String!
+  orderItems: [InputOrderItem!]!
+  orderType: String! = "PURCHASE"
+  rentPeriodInDays: Int
+}
+
+input InputOrderItem {
+  productId: String!
+  quantity: Int!
+}
+
+input CreatePaymentInput {
+  id: String!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}

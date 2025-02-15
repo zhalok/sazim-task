@@ -7,7 +7,7 @@ create env
 ```
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/mydb?schema=public"
 JWT_SECRET="veryverysecret"
-CLIENT_BASE="http://localhost:5173"
+ALLOWED_ORIGINS="http://localhost:5173"
 ```
 
 run database: `docker compose up -d`
