@@ -1,85 +1,116 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# How to start
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+please add the instructions about how to start the app
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+create env
 
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
-
-```bash
-$ yarn install
+```
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/mydb?schema=public"
+JWT_SECRET="veryverysecret"
+CLIENT_BASE="http://localhost:5173"
 ```
 
-## Compile and run the project
+run database: `docker compose up -d`
 
-```bash
-# development
-$ yarn run start
+generate prisma `client: npx prisma db push`
 
-# watch mode
-$ yarn run start:dev
+seed data: `node prisma/seed/script.js`
 
-# production mode
-$ yarn run start:prod
-```
+install dependencies: `yarn`
 
-## Run tests
+run the app: `yarn start:dev`
 
-```bash
-# unit tests
-$ yarn run test
+recording: https://www.loom.com/share/467b33c9742845a2bb78b84d633fb3cf
 
-# e2e tests
-$ yarn run test:e2e
+# How it works
 
-# test coverage
-$ yarn run test:cov
-```
+## 1. Seller Login and Product Management
 
-## Resources
+- **Login**: Sellers can log in to the system using their credentials.
+- **Product Upload**: Once logged in, sellers can upload new products to the system, which can either be for sale or rent. Each product will have details like name, price, rental price, description, and availability.
 
-Check out a few resources that may come in handy when working with NestJS:
+### Flow:
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+1. Seller logs in with username and password.
+2. Upon successful login, the seller is presented with a dashboard where they can upload products.
+3. Seller can provide details such as product name, price, rental price, description, and select if the product is for sale or rent.
 
-## Support
+---
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## 2. Customer Product Viewing
 
-## Stay in touch
+- **Product Listing**: Customers can browse and view available products without needing to log in.
+- **Product Details**: Each product will have details such as name, description, price (for sale), or rental price (for rent), and availability.
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### Flow:
 
-## License
+1. The customer navigates to the product listing page.
+2. A list of available products is displayed.
+3. The customer clicks on a product to view its details.
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+---
+
+## 3. Customer Purchasing or Renting Products
+
+- **Purchasing**: The customer can click a "Buy Now" button to purchase the product.
+- **Renting**: The customer can click a "Rent Now" button to rent the product for a specified period.
+
+### Flow:
+
+1. The customer selects the product they wish to buy or rent.
+2. For purchasing, the customer is redirected to the checkout page to make payment.
+3. For renting, the customer selects rental duration and is directed to checkout to make payment.
+
+---
+
+## 4. Order Creation and Pending Status
+
+- Once the customer selects a product for purchase or rent and proceeds with the payment, an order is created with a **pending** status.
+- The order will remain in the **pending** state until the payment is successfully processed.
+
+### Flow:
+
+1. Customer selects a product.
+2. Order is created with a **pending** status and awaits payment.
+3. The order will remain pending until the customer completes the payment.
+
+---
+
+## 5. Order Expiry and Product Reversion
+
+- If an order remains in the **pending** state for a set duration without payment, it will expire.
+- After the expiration, the product will be reverted back to available status for sale or rent.
+
+### Flow:
+
+1. After the order is created in the pending status, a timer is initiated.
+2. If the order is not completed within the expiration time, the order status changes to **expired**.
+3. The product is made available for purchase or rent again.
+
+---
+
+## 6. Payment and Order Status Change
+
+- **Payment Completion**: Once the customer makes the payment, the order status changes to either **placed** (for purchased products) or **on_rent** (for rented products).
+
+### Flow:
+
+1. Customer proceeds to the payment gateway.
+2. Once the payment is successful, the order status updates:
+   - For purchase: status changes to **placed**.
+   - For rent: status changes to **on_rent**.
+
+---
+
+## 7. Seller Order Management
+
+- **View Orders**: Sellers can log in to view the orders associated with their products.
+- **Complete Orders**: The seller can mark orders as completed once the product is delivered (for purchased items) or returned (for rental items).
+- **Delete Expired/Cancelled Orders**: The seller can delete orders that are either expired or cancelled.
+
+### Flow:
+
+1. Seller logs in and navigates to the order management page.
+2. Seller can view all orders associated with their products.
+3. Seller can complete an order once the transaction is finished or the product is returned.
+4. Seller can delete orders marked as expired or cancelled.
