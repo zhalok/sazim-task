@@ -342,9 +342,12 @@ export class OrderRepository {
       where: query,
     });
     const orders = await prisma.order.findMany({
+      where: query,
+      orderBy: {
+        createdAt: 'desc',
+      },
       skip: (page - 1) * limit,
       take: limit,
-      where: query,
     });
     return { orders, totalOrders };
   }
