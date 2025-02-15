@@ -96,6 +96,10 @@ export class OrderService {
     return updatedOrder;
   }
 
+  async deleteOrder(orderId: string) {
+    return this.orderRepository.deleteOrder(orderId);
+  }
+
   async createAndSendCustomerTokenViaEmail({
     customerEmail,
   }: {

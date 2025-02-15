@@ -129,19 +129,14 @@ export class OrderRepository {
             orderId: orderId,
           },
         });
-        await prismatx.order.delete({
-          where: {
-            id: orderId,
-          },
-        });
-        const payment = await prismatx.payment.findFirst({
+        await prismatx.payment.deleteMany({
           where: {
             orderId: orderId,
           },
         });
-        await prismatx.payment.delete({
+        await prismatx.order.delete({
           where: {
-            id: payment.id,
+            id: orderId,
           },
         });
 
@@ -386,5 +381,24 @@ export class OrderRepository {
         `Sent email to ${order.customerEmail} for payment ${extraChargePayment.id}`,
       );
     }
+  }
+
+  async deleteOrder(orderId: string) {
+    const prisma = this.prismaService.getPrismaClient();
+
+    const order = await prisma.order.findFirst({
+      where: {
+        id: orderId,
+      },
+    });
+
+    if (order.status !== 'PENDING') {
+      throw new HttpException(
+        'Order cannot be deleted',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    return this.deleteOrderIfPending(orderId);
   }
 }

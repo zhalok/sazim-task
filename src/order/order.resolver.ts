@@ -9,7 +9,7 @@ import { Roles } from 'src/common/decorators/role.decorator';
 import { Role } from '@prisma/client';
 import { RolesGuard } from 'src/common/guards/role.guard';
 import { GqlAuthGuard } from 'src/common/guards/auth.guard';
-import { UseGuards } from '@nestjs/common';
+import { HttpException, HttpStatus, UseGuards } from '@nestjs/common';
 
 @Resolver(() => Order)
 export class OrderResolver {
@@ -60,6 +60,8 @@ export class OrderResolver {
     @Args('id', { type: () => String }) id: string,
   ): Promise<Order> {
     const order = await this.orderService.findOne(id);
+    if (!order)
+      throw new HttpException('order not found', HttpStatus.NOT_FOUND);
     return {
       id: order.id,
       totalAmount: order.totalAmount,
@@ -126,6 +128,11 @@ export class OrderResolver {
     return this.orderService.completeOrder(id);
   }
 
+  @Roles(Role.SELLER)
+  @UseGuards(GqlAuthGuard, RolesGuard)
   @Mutation(() => String)
-  async deleteOrder() {}
+  async deleteOrder(@Args('id', { type: () => String }) id: string) {
+    await this.orderService.deleteOrder(id);
+    return `deleted order ${id} successfully`;
+  }
 }
