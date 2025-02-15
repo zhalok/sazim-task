@@ -12,6 +12,9 @@ RUN yarn install
 # Copy the entire project
 COPY . .
 
+# Generate Prisma client
+RUN npx prisma generate
+
 # Build the NestJS app
 RUN yarn build
 
@@ -30,4 +33,4 @@ COPY --from=build /app/prisma ./prisma
 EXPOSE 3000
 
 # Run the application
-CMD ["sh", "-c", "npx prisma db push && node dist/main.js"]
+CMD ["sh", "-c", "npx prisma db push && node prisma/seed/script.js && node dist/main.js"]
