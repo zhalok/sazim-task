@@ -12,6 +12,7 @@ RUN yarn install
 # Copy the entire project
 COPY . .
 
+RUN npx prisma generate
 # Build the NestJS app
 RUN yarn build
 
